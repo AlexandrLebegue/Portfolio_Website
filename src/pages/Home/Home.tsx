@@ -210,7 +210,7 @@ const Home: React.FC = () => {
       <HeroSection>
         <Title>Alexandre Lebegue</Title>
         <Subtitle>
-          Ingénieur Aérospatial & Développeur Full Stack passionné par les technologies qui repoussent les limites humaines
+          Ingénieur logiciel embarqué & Dev-Ops passionné par les technologies qui repoussent les limites humaines
         </Subtitle>
         <CTAButton to="/projects">Voir Mes Projets</CTAButton>
       </HeroSection>
@@ -253,14 +253,15 @@ const Home: React.FC = () => {
       <AboutSection>
         <AboutContent>
           <SectionTitle>À Propos de Moi</SectionTitle>
-          <p>
-            Je suis un ingénieur aérospatial passionné par le développement de technologies de pointe
-            qui repoussent les limites du possible. Avec une expertise en ingénierie et en
-            développement logiciel, je crée des solutions qui comblent le fossé entre ces disciplines.
-          </p>
+            <p>
+            En tant qu'ingénieur passionné par le développement de technologies de pointe, 
+            je m'efforce de repousser les limites du possible. Fort d'une expertise en ingénierie 
+            et en développement logiciel, je conçois des solutions innovantes qui intègrent 
+            harmonieusement ces deux disciplines.
+            </p>
           <br />
           <p>
-            Mon travail se concentre sur les applications aérospatiales, la recherche en IA et la visualisation de données,
+            Mon travail se concentre sur le développement logiciel, la recherche en IA et l'intégration continue,
             toujours avec un regard tourné vers l'innovation et l'implémentation pratique.
           </p>
           <br />

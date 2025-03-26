@@ -1,70 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-
-// This is placeholder data that will be replaced with actual blog content
-const blogPostsData = [
-  {
-    id: 1,
-    slug: 'spacecraft-control-systems',
-    title: 'Modern Approaches to Spacecraft Control Systems',
-    excerpt: 'An exploration of recent advancements in spacecraft control systems and their applications in autonomous navigation.',
-    date: '2023-12-15',
-    category: 'Aerospace',
-    tags: ['Spacecraft', 'Control Systems', 'Autonomy'],
-    coverImage: '🛰️',
-  },
-  {
-    id: 2,
-    slug: 'react-performance-optimization',
-    title: 'Performance Optimization Techniques for React Applications',
-    excerpt: 'A deep dive into strategies for improving the performance of React applications, from code splitting to memoization.',
-    date: '2023-11-02',
-    category: 'Web Development',
-    tags: ['React', 'JavaScript', 'Performance', 'Optimization'],
-    coverImage: '⚛️',
-  },
-  {
-    id: 3,
-    slug: 'machine-learning-aerospace',
-    title: 'Applications of Machine Learning in Aerospace Engineering',
-    excerpt: 'How machine learning algorithms are revolutionizing aerospace engineering, from design optimization to predictive maintenance.',
-    date: '2023-09-18',
-    category: 'Data Science',
-    tags: ['Machine Learning', 'Aerospace', 'AI', 'Engineering'],
-    coverImage: '🤖',
-  },
-  {
-    id: 4,
-    slug: 'typescript-best-practices',
-    title: 'TypeScript Best Practices for Large-Scale Applications',
-    excerpt: 'Essential patterns and practices for maintaining type safety and code quality in large TypeScript projects.',
-    date: '2023-08-05',
-    category: 'Web Development',
-    tags: ['TypeScript', 'JavaScript', 'Best Practices'],
-    coverImage: '📝',
-  },
-  {
-    id: 5,
-    slug: 'orbital-mechanics-basics',
-    title: 'Understanding the Basics of Orbital Mechanics',
-    excerpt: 'A beginner-friendly introduction to the fundamental principles of orbital mechanics and their practical applications.',
-    date: '2023-07-12',
-    category: 'Aerospace',
-    tags: ['Orbital Mechanics', 'Physics', 'Space'],
-    coverImage: '🪐',
-  },
-  {
-    id: 6,
-    slug: 'data-visualization-d3',
-    title: 'Creating Interactive Data Visualizations with D3.js',
-    excerpt: 'A step-by-step guide to building interactive and informative data visualizations using D3.js and SVG.',
-    date: '2023-06-20',
-    category: 'Data Science',
-    tags: ['Data Visualization', 'D3.js', 'JavaScript', 'SVG'],
-    coverImage: '📊',
-  },
-];
+import { useBlogPosts } from '../../hooks/useBlogPosts';
 
 const BlogContainer = styled.div`
   display: flex;
@@ -308,27 +245,47 @@ const BlogCardTag = styled.span`
   border-radius: ${({ theme }) => theme.borderRadius.full};
 `;
 
+const AdminLink = styled(Link)`
+  display: inline-block;
+  margin-top: ${({ theme }) => theme.space.md};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  text-decoration: none;
+  
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+    text-decoration: underline;
+  }
+`;
+
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: ${({ theme }) => theme.space.xl};
+  color: ${({ theme }) => theme.colors.text.secondary};
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: ${({ theme }) => theme.space.xl};
+  color: ${({ theme }) => theme.colors.status.error};
+`;
+
 const Blog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   
-  // Extract unique categories and tags
-  const categories = [...new Set(blogPostsData.map(post => post.category))];
-  const allTags = blogPostsData.flatMap(post => post.tags);
-  const uniqueTags = [...new Set(allTags)];
-  
-  // Filter blog posts based on search, category, and tag
-  const filteredPosts = blogPostsData.filter(post => {
-    const matchesSearch = searchTerm === '' || 
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = selectedCategory === null || post.category === selectedCategory;
-    
-    const matchesTag = selectedTag === null || post.tags.includes(selectedTag);
-    
-    return matchesSearch && matchesCategory && matchesTag;
+  // Use our custom hook to fetch blog posts
+  const {
+    posts,
+    loading,
+    error,
+    categories,
+    tags
+  } = useBlogPosts({
+    category: selectedCategory || undefined,
+    tag: selectedTag || undefined,
+    search: searchTerm
   });
   
   // Format date
@@ -346,17 +303,24 @@ const Blog: React.FC = () => {
       <PageHeader>
         <Title>Blog</Title>
         <Subtitle>
-          Thoughts, insights, and tutorials on aerospace engineering, software development, and data science
+          Réflexions, analyses et tutoriels sur l'ingénierie aérospatiale, le développement logiciel et la science des données
         </Subtitle>
       </PageHeader>
       
       <BlogContent>
         <BlogPosts>
-          {filteredPosts.length === 0 ? (
-            <p>No blog posts found matching your criteria.</p>
+          {loading ? (
+            <LoadingMessage>Chargement des articles...</LoadingMessage>
+          ) : error ? (
+            <ErrorMessage>
+              <h2>Erreur lors du chargement des articles</h2>
+              <p>{error.message}</p>
+            </ErrorMessage>
+          ) : posts.length === 0 ? (
+            <p>Aucun article ne correspond à vos critères.</p>
           ) : (
             <BlogGrid>
-              {filteredPosts.map(post => (
+              {posts.map(post => (
                 <BlogCard key={post.id}>
                   <BlogCardImage>{post.coverImage}</BlogCardImage>
                   <BlogCardContent>
@@ -379,6 +343,9 @@ const Blog: React.FC = () => {
               ))}
             </BlogGrid>
           )}
+          
+          {/* Admin link - this would normally be hidden or protected */}
+          <AdminLink to="/admin/blog">Administration du Blog</AdminLink>
         </BlogPosts>
         
         <Sidebar>
@@ -387,7 +354,7 @@ const Blog: React.FC = () => {
               <SearchIcon>🔍</SearchIcon>
               <SearchInput 
                 type="text" 
-                placeholder="Search blog posts..." 
+                placeholder="Rechercher des articles..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -395,14 +362,14 @@ const Blog: React.FC = () => {
           </SidebarSection>
           
           <SidebarSection>
-            <SidebarTitle>Categories</SidebarTitle>
+            <SidebarTitle>Catégories</SidebarTitle>
             <CategoryList>
               <CategoryItem>
                 <CategoryLink 
                   active={selectedCategory === null}
                   onClick={() => setSelectedCategory(null)}
                 >
-                  All Categories
+                  Toutes les Catégories
                 </CategoryLink>
               </CategoryItem>
               {categories.map(category => (
@@ -425,9 +392,9 @@ const Blog: React.FC = () => {
                 active={selectedTag === null}
                 onClick={() => setSelectedTag(null)}
               >
-                All
+                Tous
               </TagButton>
-              {uniqueTags.map(tag => (
+              {tags.map(tag => (
                 <TagButton 
                   key={tag} 
                   active={selectedTag === tag}

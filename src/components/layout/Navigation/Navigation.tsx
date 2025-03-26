@@ -15,7 +15,6 @@ const navItems = [
 const Nav = styled.nav`
   display: flex;
   align-items: center;
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: none;
   }
@@ -69,6 +68,7 @@ const NavLinkStyled = styled(NavLink)`
 const MobileNavButton = styled.button`
   display: none;
   background: none;
+
   border: none;
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.fontSizes.xl};
@@ -78,9 +78,11 @@ const MobileNavButton = styled.button`
   transition: color ${({ theme }) => theme.transitions.normal},
     background-color ${({ theme }) => theme.transitions.normal};
 
+
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
     background-color: ${({ theme }) => theme.colors.ui.hover};
+
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -98,6 +100,7 @@ const MobileNavOverlay = styled.div<{ $isOpen: boolean }>`
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
+
   z-index: ${({ theme }) => theme.zIndices.modal};
   backdrop-filter: blur(4px);
 `;
@@ -112,6 +115,7 @@ const MobileNavPanel = styled.div<{ $isOpen: boolean }>`
   max-width: 300px;
   height: 100%;
   background-color: ${({ theme }) => theme.colors.background.dark};
+
   z-index: ${({ theme }) => theme.zIndices.modal + 1};
   padding: ${({ theme }) => theme.space.xl};
   transform: translateX(${({ $isOpen }) => ($isOpen ? '0' : '100%')});
@@ -154,6 +158,8 @@ const MobileNavList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.space.lg};
+  // background-color: rgba(53, 52, 53, 0.86);
+
 `;
 
 const MobileNavItem = styled.li``;
@@ -163,17 +169,22 @@ const MobileNavLink = styled(NavLink)`
   text-decoration: none;
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  padding: ${({ theme }) => theme.space.sm} 0;
+  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.md};
   display: block;
-  transition: color ${({ theme }) => theme.transitions.normal};
+  background-color: ${({ theme }) => theme.colors.background.code};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: color ${({ theme }) => theme.transitions.normal},
+    background-color ${({ theme }) => theme.transitions.normal};
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
+    background-color: ${({ theme }) => theme.colors.ui.hover};
   }
 
   &.active {
     color: ${({ theme }) => theme.colors.primary};
     font-weight: ${({ theme }) => theme.fontWeights.semibold};
+    background-color: ${({ theme }) => theme.colors.ui};
   }
 `;
 

@@ -162,7 +162,7 @@ const About: React.FC = () => {
       <PageHeader>
         <Title>À Propos de Moi</Title>
         <Subtitle>
-          Ingénieur aérospatial et développeur passionné repoussant les frontières de la technologie
+          Ingénieur logiciel embarqué mais surtout développeur passionné en technologies IA 
         </Subtitle>
       </PageHeader>
       
