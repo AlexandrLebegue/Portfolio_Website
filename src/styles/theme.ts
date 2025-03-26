@@ -113,7 +113,7 @@ export const theme = {
   colors: {
     // Primary colors
     primary: '#0B3D91', // NASA blue
-    secondary: '#FC3D21', // NASA red
+    secondary: 'rgb(96, 0, 199)', // NASA red
     tertiary: '#4D7C8A', // Steel blue
 
     // Background colors

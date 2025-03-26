@@ -1,46 +1,148 @@
-# Getting Started with Create React App
+# 🚀 Professional Portfolio Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive portfolio website for me, showcasing professional experience, GitHub projects, and technical blog posts.
 
-## Available Scripts
+## 📋 Project Overview
 
-In the project directory, you can run:
+This portfolio website integrates GitHub projects and professional experience with the following key features:
 
-### `npm start`
+- 💻 GitHub API integration to dynamically display repositories
+- 📝 Detailed CV section with experience, skills, and education
+- 🧑‍🚀 "About" section highlighting aerospace engineering background
+- 🐳 Containerized architecture with Docker for easy deployment
+- 🔄 CI/CD pipeline with GitHub Actions
+- 🎨 Clean, modern, responsive design with tech/aerospace-inspired visuals
+- 📱 Contact functionality with social media links
+- 📚 Blog section for technical articles and insights
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 🛠️ Technology Stack
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🖥️ Frontend
+- **Framework**: ⚛️ React with TypeScript
+- **State Management**: 🔄 React Context API
+- **Styling**: 💅 Styled Components or Tailwind CSS
+- **Routing**: 🧭 React Router
+- **API Integration**: 📡 Axios or Fetch API
+- **Blog**: 📝 React-Markdown with Prism.js for syntax highlighting
+- **Testing**: 🧪 Jest and React Testing Library
 
-### `npm test`
+### ⚙️ Infrastructure
+- **Containerization**: 🐳 Docker with multi-stage builds
+- **CI/CD**: 🔄 GitHub Actions
+- **Deployment**: 🖥️ Self-hosted server with Nginx
+- **SSL**: 🔒 Let's Encrypt
+- **Version Control**: 📂 Git/GitHub
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🏗️ Architecture
 
-### `npm run build`
+The application follows a modern React architecture with the following components:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Frontend**: ⚛️ React SPA with TypeScript
+- **Backend Services**: 📡 GitHub API integration, Blog content management
+- **Infrastructure**: 🐳 Docker containers, Nginx, CI/CD pipeline
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Key technical considerations include:
+- 🚦 GitHub API rate limiting and caching
+- 📱 Responsive design for all device sizes
+- ⚡ Performance optimization with code splitting and lazy loading
+- 🔐 Security best practices
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 📁 Project Structure
 
-### `npm run eject`
+The project follows a well-organized directory structure:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```
+portfolio-website/
+├── src/                    # Source code
+│   ├── assets/             # Images, fonts, etc.
+│   ├── components/         # Reusable UI components
+│   ├── hooks/              # Custom React hooks
+│   ├── pages/              # Page components
+│   ├── services/           # API services
+│   ├── types/              # TypeScript type definitions
+│   ├── utils/              # Utility functions
+│   ├── context/            # React Context providers
+│   ├── styles/             # Global styles
+│   ├── App.tsx             # Main App component
+│   └── index.tsx           # Entry point
+├── content/                # Blog content (markdown files)
+│   ├── posts/              # Blog posts
+│   └── assets/             # Blog-specific assets
+├── public/                 # Static assets
+├── Dockerfile              # Docker configuration
+└── .github/workflows/      # GitHub Actions workflows
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📝 Blog Management
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The blog uses a Git-based approach for content management (WIP 🚧):
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- 📄 Markdown files stored directly in the repository
+- 🏷️ Frontmatter metadata for title, date, tags, etc.
+- 🔄 Git workflow for content creation and updates
+- 🖌️ React-Markdown for rendering with syntax highlighting
+- 📂 Organized directory structure for posts and assets
 
-## Learn More
+Advantages of this approach include:
+- 📜 Full version control for all content
+- 👨‍💻 Developer-friendly workflow
+- 🔌 No external CMS dependencies
+- 🧰 Content treated with the same rigor as code
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🚢 Infrastructure and Deployment
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The application is containerized with Docker and deployed using a CI/CD pipeline:
+
+- 🐳 Multi-stage Dockerfile for optimized production builds
+- 🔄 Nginx as a reverse proxy with SSL termination
+- 🔒 Let's Encrypt for SSL certificates
+- 🔄 GitHub Actions for automated testing, building, and deployment
+- 📊 Monitoring and logging for production environment
+
+## 🚦 Getting Started
+
+### 💻 Development
+
+You want to build your own Portfolio using this website as a template ? Great ! 
+Follow theses instructions.
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/portfolio-website.git
+   cd portfolio-website
+   ```
+
+2. Install dependencies (make sur you have node js installed on your computer):
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+### 🐳 Docker Development
+
+1. Build and run with Docker Compose:
+   ```bash
+   docker-compose -f docker-compose.dev.yml up --build
+   ```
+
+### 🚀 Production Deployment
+
+1. Build the Docker image:
+   ```bash
+   docker build -t portfolio-website .
+   ```
+
+2. Run with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+
+## 📄 License
+
+[MIT](LICENSE)

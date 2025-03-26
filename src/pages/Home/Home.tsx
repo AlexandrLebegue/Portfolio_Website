@@ -200,6 +200,13 @@ const AboutImage = styled.div`
   justify-content: center;
   font-size: ${({ theme }) => theme.fontSizes['4xl']};
   border: 3px solid ${({ theme }) => theme.colors.primary};
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const Home: React.FC = () => {
@@ -269,7 +276,9 @@ const Home: React.FC = () => {
         </AboutContent>
         
         <AboutImageContainer>
-          <AboutImage>👨‍🚀</AboutImage>
+          <AboutImage>
+            <img src={require('../../assets/images/me.JPG')} alt="Alexandre Lebegue" />
+          </AboutImage>
         </AboutImageContainer>
       </AboutSection>
     </HomeContainer>

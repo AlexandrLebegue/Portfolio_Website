@@ -80,6 +80,13 @@ const ProfileImage = styled.div`
   justify-content: center;
   font-size: ${({ theme }) => theme.fontSizes['4xl']};
   border: 3px solid ${({ theme }) => theme.colors.primary};
+  overflow: hidden;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 const Paragraph = styled.p`
@@ -171,76 +178,67 @@ const About: React.FC = () => {
           <ProfileContent>
             <SectionTitle>Mon Parcours</SectionTitle>
             <Paragraph>
-              Je suis Alexandre Lebegue, un ingénieur aérospatial passionné par le développement de technologies
-              de pointe qui repoussent les limites du possible. Mon parcours a commencé par une
-              fascination pour l'exploration spatiale et l'aviation, ce qui m'a conduit à poursuivre des études
-              en ingénierie aérospatiale.
+              Je suis Alexandre Lebegue, un ingénieur logiciel embarqué animé par une passion profonde pour le développement de technologies
+              de pointe qui repoussent les limites du possible. Mon parcours a été guidé par une fascination pour l'exploration spatiale
+              et les innovations technologiques. Cette passion m'a conduit à poursuivre des études en ingénierie logicielle, où j'ai découvert
+              la joie de créer et de partager mes connaissances avec les autres. Chaque projet est pour moi une opportunité de contribuer
+              à un l'avenir et de laisser une marque dans le monde.
             </Paragraph>
             <Paragraph>
-              Tout au long de ma carrière, j'ai travaillé sur divers projets allant des systèmes spatiaux
-              aux drones autonomes. Ma formation d'ingénieur, combinée à mes compétences en développement logiciel,
-              me permet de faire le pont entre ces disciplines et de créer des solutions innovantes
-              à des problèmes complexes.
+              Tout au long de ma carrière, j'ai eu l'opportunité de combiner mes compétences techniques avec ma créativité sur divers projets. 
+              En commençant par le développement d'un simulateur de voûte céleste, j'ai découvert la puissance du C++ (et la joie des fuites mémoires ...). Ma contribution à la création de viseurs d'étoiles 
+              m'a enseigné le développement dans des environnements contraints en C. 
+              Participer au lancement de l'usine logicielle pour l'intégration continue m'a offert une vue d'ensemble sur le cycle de développement.
+              Actuellement, je travaille sur l'utilisation des LLMs pour l'aide au développement, afin de continuer à développer mes compétences.
             </Paragraph>
             <Paragraph>
               Je crois que l'intersection entre l'ingénierie aérospatiale et le développement logiciel
               offre d'énormes opportunités d'innovation. Qu'il s'agisse de développer des outils de simulation
-              pour la dynamique spatiale, de créer des systèmes de contrôle pour véhicules autonomes, ou
-              de construire des plateformes de visualisation de données pour des ensembles de données complexes,
+              pour la dynamique spatiale, de créer des systèmes de contrôle, ou
+              de construire des plateformes de visualisation de données complexes,
               je suis toujours enthousiaste à l'idée de relever de nouveaux défis.
             </Paragraph>
           </ProfileContent>
           
           <ProfileImageContainer>
-            <ProfileImage>👨‍🚀</ProfileImage>
+            <ProfileImage>
+              <img src={require('../../assets/images/me.JPG')} alt="Alexandre Lebegue" />
+            </ProfileImage>
           </ProfileImageContainer>
         </ProfileSection>
       </Section>
       
       <Section>
         <SectionTitle>Compétences & Expertise</SectionTitle>
-        <SkillsGrid>
-          <SkillCategory>
-            <SkillCategoryTitle>Ingénierie Aérospatiale</SkillCategoryTitle>
-            <SkillList>
-              <SkillItem>Mécanique Orbitale</SkillItem>
-              <SkillItem>Systèmes Spatiaux</SkillItem>
-              <SkillItem>Dynamique de Vol</SkillItem>
-              <SkillItem>Systèmes de Contrôle</SkillItem>
-              <SkillItem>Systèmes de Propulsion</SkillItem>
-            </SkillList>
-          </SkillCategory>
-          
+        <SkillsGrid>         
           <SkillCategory>
             <SkillCategoryTitle>Développement Logiciel</SkillCategoryTitle>
             <SkillList>
-              <SkillItem>React & TypeScript</SkillItem>
               <SkillItem>Python</SkillItem>
-              <SkillItem>C++</SkillItem>
-              <SkillItem>MATLAB</SkillItem>
-              <SkillItem>Développement Full Stack</SkillItem>
+              <SkillItem>C/C++ 11</SkillItem>
+              <SkillItem>Cmake / GCC / MSVC</SkillItem>
             </SkillList>
           </SkillCategory>
           
           <SkillCategory>
-            <SkillCategoryTitle>Science des Données</SkillCategoryTitle>
+            <SkillCategoryTitle>Intelligence Artificielle</SkillCategoryTitle>
             <SkillList>
+              <SkillItem>Développement d'agents avec outils</SkillItem>
               <SkillItem>Apprentissage Automatique</SkillItem>
+              <SkillItem>Apprentissage par renforcement</SkillItem>
               <SkillItem>Visualisation de Données</SkillItem>
-              <SkillItem>Analyse Statistique</SkillItem>
-              <SkillItem>Vision par Ordinateur</SkillItem>
-              <SkillItem>Traitement du Signal</SkillItem>
             </SkillList>
           </SkillCategory>
           
           <SkillCategory>
             <SkillCategoryTitle>Outils & Technologies</SkillCategoryTitle>
             <SkillList>
-              <SkillItem>Git & GitHub</SkillItem>
+              <SkillItem>Git & SVN</SkillItem>
+              <SkillItem>Github & Tuleap</SkillItem>
+              <SkillItem>Jenkins & Github Workflow</SkillItem>
               <SkillItem>Docker</SkillItem>
               <SkillItem>Pipelines CI/CD</SkillItem>
-              <SkillItem>Plateformes Cloud</SkillItem>
-              <SkillItem>Outils de Simulation</SkillItem>
+              <SkillItem>Google Cloud (en cours 🚸)</SkillItem>
             </SkillList>
           </SkillCategory>
         </SkillsGrid>
@@ -261,15 +259,7 @@ const About: React.FC = () => {
             <InterestIcon>🤖</InterestIcon>
             <InterestTitle>Intelligence Artificielle</InterestTitle>
             <InterestDescription>
-              Explorer le potentiel de l'IA pour résoudre des problèmes d'ingénierie complexes
-            </InterestDescription>
-          </InterestItem>
-          
-          <InterestItem>
-            <InterestIcon>🛸</InterestIcon>
-            <InterestTitle>Systèmes Autonomes</InterestTitle>
-            <InterestDescription>
-              Développer des systèmes capables de fonctionner de manière indépendante dans des environnements difficiles
+              Explorer le potentiel de l'IA pour résoudre des problèmes et aider au développement
             </InterestDescription>
           </InterestItem>
           
@@ -280,6 +270,15 @@ const About: React.FC = () => {
               Créer des moyens intuitifs de comprendre et d'interagir avec des données complexes
             </InterestDescription>
           </InterestItem>
+          
+            <InterestItem>
+            <InterestIcon>🚙</InterestIcon>
+            <InterestTitle>Exploration terrestre</InterestTitle>
+            <InterestDescription>
+              Rencontrer de nouvelles personnes, cultures et lieux. 
+            </InterestDescription>
+            </InterestItem>
+
         </InterestsList>
       </Section>
     </AboutContainer>

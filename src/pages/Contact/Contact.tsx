@@ -142,8 +142,7 @@ const Contact: React.FC = () => {
           <p>
             Que vous ayez une question sur mon travail, que vous souhaitiez discuter d'un projet potentiel,
             ou simplement dire bonjour, je serais ravi d'avoir de vos nouvelles. Je suis actuellement ouvert à
-            des opportunités de freelance et des collaborations en ingénierie aérospatiale, développement
-            logiciel et science des données.
+            des opportunités de freelance dans le développement d'agents IA.
           </p>
           
           <ContactMethods>
@@ -153,7 +152,7 @@ const Contact: React.FC = () => {
                 Courriel
               </ContactMethodTitle>
               <ContactLink href="mailto:contact@alexandrelebegue.com">
-                contact@alexandrelebegue.com
+                alexandrelebegue12@gmail.com
               </ContactLink>
             </ContactMethod>
             
@@ -162,7 +161,7 @@ const Contact: React.FC = () => {
                 <ContactMethodIcon>🔗</ContactMethodIcon>
                 LinkedIn
               </ContactMethodTitle>
-              <ContactLink href="https://linkedin.com/in/alexandrlebegue" target="_blank" rel="noopener noreferrer">
+              <ContactLink href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/" target="_blank" rel="noopener noreferrer">
                 linkedin.com/in/alexandrlebegue
               </ContactLink>
             </ContactMethod>
@@ -178,17 +177,6 @@ const Contact: React.FC = () => {
             </ContactMethod>
           </ContactMethods>
           
-          <SocialLinks>
-            <SocialLink href="https://github.com/AlexandrLebegue" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-              <i>&#xf09b;</i> {/* GitHub icon (using a placeholder) */}
-            </SocialLink>
-            <SocialLink href="https://linkedin.com/in/alexandrlebegue" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-              <i>&#xf08c;</i> {/* LinkedIn icon (using a placeholder) */}
-            </SocialLink>
-            <SocialLink href="https://twitter.com/alexandrlebegue" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <i>&#xf099;</i> {/* Twitter icon (using a placeholder) */}
-            </SocialLink>
-          </SocialLinks>
         </ContactInfo>
         
         <ContactImageContainer>
