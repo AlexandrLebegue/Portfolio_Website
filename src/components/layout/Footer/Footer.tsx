@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
       <FooterContent>
         <FooterSection>
           <FooterHeading>Alexandre Lebegue</FooterHeading>
-          <p>Ingénieur logiciel passioné de nouvelles technologies</p>
+          <p>Ingénieur logiciel passionné de nouvelles technologies</p>
           <SocialLinks>
             <SocialLink href="https://github.com/AlexandrLebegue" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
               <i>&#xf09b;</i> {/* GitHub icon (using a placeholder) */}
