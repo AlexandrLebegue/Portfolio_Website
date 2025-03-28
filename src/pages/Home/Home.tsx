@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import useFeaturedProjects from '../../hooks/useFeaturedProjects';
 
@@ -8,6 +8,78 @@ const HomeContainer = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.space.xl};
 `;
+
+// Keyframes for animations
+const fadeIn = keyframes`
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+`;
+
+const twinkle = keyframes`
+  0% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0.2; transform: scale(0.8); }
+`;
+
+// Star component with random properties
+interface StarProps {
+  size: number;
+  top: number;
+  left: number;
+  delay: number;
+  duration: number;
+}
+
+const Star = styled.div<StarProps>`
+  position: absolute;
+  width: ${props => props.size}px;
+  height: ${props => props.size}px;
+  top: ${props => props.top}%;
+  left: ${props => props.left}%;
+  background-color: ${({ theme }) => theme.colors.text.accent};
+  border-radius: ${({ theme }) => theme.borderRadius.full};
+  box-shadow: 0 0 ${props => props.size * 2}px ${props => props.size / 2}px ${({ theme }) => theme.colors.text.accent};
+  animation: ${twinkle} ${props => props.duration}s ease-in-out infinite;
+  animation-delay: ${props => props.delay}s;
+  opacity: 0.2;
+  z-index: -1;
+`;
+
+// Generate an array of stars with random properties
+const generateStars = (count: number) => {
+  const stars = [];
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      id: i,
+      size: Math.random() * 3 + 1, // Size between 1-4px
+      top: Math.random() * 100,    // Position from 0-100%
+      left: Math.random() * 100,   // Position from 0-100%
+      delay: Math.random() * 5,    // Delay between 0-5s
+      duration: Math.random() * 3 + 2, // Duration between 2-5s
+    });
+  }
+  return stars;
+};
+
+// Stars background component
+const StarBackground = () => {
+  const [stars] = useState(() => generateStars(50)); // Generate 50 stars
+  
+  return (
+    <>
+      {stars.map(star => (
+        <Star
+          key={star.id}
+          size={star.size}
+          top={star.top}
+          left={star.left}
+          delay={star.delay}
+          duration={star.duration}
+        />
+      ))}
+    </>
+  );
+};
 
 const HeroSection = styled.section`
   display: flex;
@@ -252,6 +324,7 @@ const Home: React.FC = () => {
   return (
     <HomeContainer>
       <HeroSection>
+        <StarBackground />
         <Title>Alexandre Lebegue</Title>
         <Subtitle>
           Ingénieur logiciel embarqué & Dev-Ops passionné par les technologies qui repoussent les limites humaines
