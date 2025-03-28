@@ -271,7 +271,7 @@ const CV: React.FC = () => {
       <PageHeader>
         <Title>Curriculum Vitae</Title>
         <Subtitle>
-          My professional journey in aerospace engineering and software development
+          🚧 Vue en cours de construction, ci-dessous un template généré par IA 🚧
         </Subtitle>
         <DownloadButton href="/cv.pdf" target="_blank" rel="noopener noreferrer">
           <span>📄</span> Download CV

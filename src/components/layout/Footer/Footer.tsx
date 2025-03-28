@@ -115,24 +115,21 @@ const Footer: React.FC = () => {
       <FooterContent>
         <FooterSection>
           <FooterHeading>Alexandre Lebegue</FooterHeading>
-          <p>Aerospace engineer and passionate developer pushing the boundaries of technology.</p>
+          <p>Ingénieur logiciel passioné de nouvelles technologies</p>
           <SocialLinks>
             <SocialLink href="https://github.com/AlexandrLebegue" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
               <i>&#xf09b;</i> {/* GitHub icon (using a placeholder) */}
             </SocialLink>
-            <SocialLink href="https://linkedin.com/in/alexandrlebegue" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <SocialLink href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
               <i>&#xf08c;</i> {/* LinkedIn icon (using a placeholder) */}
-            </SocialLink>
-            <SocialLink href="https://twitter.com/alexandrlebegue" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-              <i>&#xf099;</i> {/* Twitter icon (using a placeholder) */}
             </SocialLink>
           </SocialLinks>
         </FooterSection>
         
         <FooterSection>
           <FooterHeading>Navigation</FooterHeading>
-          <FooterLink to="/">Home</FooterLink>
-          <FooterLink to="/projects">Projects</FooterLink>
+          <FooterLink to="/">Accueil</FooterLink>
+          <FooterLink to="/projects">Projets</FooterLink>
           <FooterLink to="/cv">CV</FooterLink>
           <FooterLink to="/about">About</FooterLink>
           <FooterLink to="/blog">Blog</FooterLink>
@@ -141,23 +138,22 @@ const Footer: React.FC = () => {
         
         <FooterSection>
           <FooterHeading>Contact</FooterHeading>
-          <ExternalLink href="mailto:contact@alexandrelebegue.com">
+          <ExternalLink href="mailto:alexandrelebegue12@gmail.com">
             <span>&#9993;</span> {/* Email icon */}
-            contact@alexandrelebegue.com
-          </ExternalLink>
+            alexandrelebegue12@gmail.com         
+           </ExternalLink>
           <ExternalLink href="https://github.com/AlexandrLebegue" target="_blank" rel="noopener noreferrer">
-            <span>&#xf09b;</span> {/* GitHub icon (using a placeholder) */}
+           
             GitHub
           </ExternalLink>
-          <ExternalLink href="https://linkedin.com/in/alexandrlebegue" target="_blank" rel="noopener noreferrer">
-            <span>&#xf08c;</span> {/* LinkedIn icon (using a placeholder) */}
+          <ExternalLink href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/" target="_blank" rel="noopener noreferrer">
             LinkedIn
           </ExternalLink>
         </FooterSection>
       </FooterContent>
       
       <Copyright>
-        &copy; {currentYear} Alexandre Lebegue. All rights reserved.
+        &copy; {currentYear} Alexandre Lebegue. Tout droit reservé.
       </Copyright>
     </FooterContainer>
   );

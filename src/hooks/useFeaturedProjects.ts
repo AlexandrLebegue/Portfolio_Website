@@ -8,6 +8,7 @@ interface ProcessedProject {
   technologies: string[];
   language: string | null;
   image: string;
+  logoUrl: string;
   githubUrl: string;
   demoUrl: string | null;
 }
@@ -83,6 +84,7 @@ const useFeaturedProjects = (): UseFeaturedProjectsResult => {
           technologies: extractTechnologies(repo.topics),
           language: repo.language,
           image: getLanguageEmoji(repo.language),
+          logoUrl: `https://raw.githubusercontent.com/AlexandrLebegue/${repo.name}/main/logo.png`,
           githubUrl: repo.html_url,
           demoUrl: repo.homepage,
         }));
@@ -100,6 +102,7 @@ const useFeaturedProjects = (): UseFeaturedProjectsResult => {
             technologies: ['TypeScript', 'Three.js', 'React', 'Physics Engine'],
             language: 'TypeScript',
             image: '🚀',
+            logoUrl: 'https://raw.githubusercontent.com/AlexandrLebegue/aerospace-simulation/main/logo.png',
             githubUrl: 'https://github.com/AlexandrLebegue/aerospace-simulation',
             demoUrl: 'https://aerospace-sim.example.com',
           },
@@ -110,6 +113,7 @@ const useFeaturedProjects = (): UseFeaturedProjectsResult => {
             technologies: ['Python', 'TensorFlow', 'Flask', 'React'],
             language: 'Python',
             image: '🤖',
+            logoUrl: 'https://raw.githubusercontent.com/AlexandrLebegue/ai-research/main/logo.png',
             githubUrl: 'https://github.com/AlexandrLebegue/ai-research',
             demoUrl: 'https://ai-research.example.com',
           },
@@ -120,6 +124,7 @@ const useFeaturedProjects = (): UseFeaturedProjectsResult => {
             technologies: ['JavaScript', 'D3.js', 'SVG', 'Canvas'],
             language: 'JavaScript',
             image: '📊',
+            logoUrl: 'https://raw.githubusercontent.com/AlexandrLebegue/data-viz/main/logo.png',
             githubUrl: 'https://github.com/AlexandrLebegue/data-viz',
             demoUrl: 'https://data-viz.example.com',
           },

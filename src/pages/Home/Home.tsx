@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import useFeaturedProjects from '../../hooks/useFeaturedProjects';
@@ -120,6 +120,12 @@ const ProjectImage = styled.div`
   align-items: center;
   justify-content: center;
   font-size: ${({ theme }) => theme.fontSizes['3xl']};
+
+  & > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 `;
 
 const ProjectContent = styled.div`
@@ -209,6 +215,37 @@ const AboutImage = styled.div`
   }
 `;
 
+// Component to handle project image loading with fallback
+interface ProjectImageContentProps {
+  logoUrl: string;
+  fallbackImage: string;
+  name: string;
+}
+
+const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ logoUrl, fallbackImage, name }) => {
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  
+  useEffect(() => {
+    const checkLogo = async () => {
+      try {
+        const response = await fetch(logoUrl);
+        const text = await response.text();
+        setLogoLoaded(response.ok && !text.includes("404: Not Found"));
+      } catch (error) {
+        setLogoLoaded(false);
+      }
+    };
+    
+    checkLogo();
+  }, [logoUrl]);
+  
+  return logoLoaded ? (
+    <img src={logoUrl} alt={name} />
+  ) : (
+    <>{fallbackImage}</>
+  );
+};
+
 const Home: React.FC = () => {
   // Fetch featured projects from GitHub
   const { projects: featuredProjects, loading, error } = useFeaturedProjects();
@@ -233,7 +270,13 @@ const Home: React.FC = () => {
           <ProjectsGrid>
             {featuredProjects.map(project => (
               <ProjectCard key={project.id}>
-                <ProjectImage>{project.image}</ProjectImage>
+                <ProjectImage>
+                  <ProjectImageContent
+                    logoUrl={`https://raw.githubusercontent.com/AlexandrLebegue/${project.name}/main/logo.png`}
+                    fallbackImage={project.image}
+                    name={project.name}
+                  />
+                </ProjectImage>
                 <ProjectContent>
                   <ProjectTitle>{project.name}</ProjectTitle>
                   <ProjectDescription>

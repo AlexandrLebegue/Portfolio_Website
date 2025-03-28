@@ -117,6 +117,12 @@ const ProjectImage = styled.div`
   align-items: center;
   justify-content: center;
   font-size: ${({ theme }) => theme.fontSizes['3xl']};
+  
+  & > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 `;
 
 const ProjectContent = styled.div`
@@ -177,6 +183,38 @@ const ProjectLink = styled.a`
   }
 `;
 
+
+// Component to handle project image loading with fallback
+interface ProjectImageContentProps {
+  logoUrl: string;
+  fallbackImage: string;
+  name: string;
+}
+
+const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ logoUrl, fallbackImage, name }) => {
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  
+  useEffect(() => {
+    const checkLogo = async () => {
+      try {
+        const response = await fetch(logoUrl);
+        const text = await response.text();
+        setLogoLoaded(response.ok && !text.includes("404: Not Found"));
+      } catch (error) {
+        setLogoLoaded(false);
+      }
+    };
+    
+    checkLogo();
+  }, [logoUrl]);
+  
+  return logoLoaded ? (
+    <img src={logoUrl} alt={name} />
+  ) : (
+    <>{fallbackImage}</>
+  );
+};
+
 const Projects: React.FC = () => {
   const [filter, setFilter] = useState<string | null>(null);
   const [showForks, setShowForks] = useState<boolean>(false);
@@ -185,19 +223,25 @@ const Projects: React.FC = () => {
   const { repos, loading, error } = useGitHubRepos({ excludeForks: !showForks });
   
   // Process repositories to extract technologies from topics
-  const processedRepos = repos.map(repo => ({
-    id: repo.id,
-    name: repo.name,
-    description: repo.description || 'No description provided',
-    technologies: extractTechnologies(repo.topics),
-    language: repo.language,
-    image: getLanguageEmoji(repo.language),
-    githubUrl: repo.html_url,
-    demoUrl: repo.homepage,
-    stars: repo.stargazers_count,
-    forks: repo.forks_count,
-    updatedAt: new Date(repo.updated_at),
-  }));
+  const processedRepos = repos.map(repo => {
+    // Try to construct a potential logo URL based on repo name
+    const potentialLogoUrl = `https://raw.githubusercontent.com/AlexandrLebegue/${repo.name}/main/logo.png`;
+    
+    return {
+      id: repo.id,
+      name: repo.name,
+      description: repo.description || 'No description provided',
+      technologies: extractTechnologies(repo.topics),
+      language: repo.language,
+      image: getLanguageEmoji(repo.language), // Default to language emoji
+      logoUrl: potentialLogoUrl, // Store the potential logo URL for later use
+      githubUrl: repo.html_url,
+      demoUrl: repo.homepage,
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      updatedAt: new Date(repo.updated_at),
+    };
+  });
   
   // Extract unique technologies for filter buttons
   const allTechnologies = processedRepos.flatMap(project => project.technologies);
@@ -274,7 +318,9 @@ const Projects: React.FC = () => {
         <ProjectsGrid>
           {filteredProjects.map(project => (
             <ProjectCard key={project.id}>
-              <ProjectImage>{project.image}</ProjectImage>
+              <ProjectImage>
+                <ProjectImageContent logoUrl={project.logoUrl} fallbackImage={project.image} name={project.name} />
+              </ProjectImage>
               <ProjectContent>
                 <ProjectTitle>{project.name}</ProjectTitle>
                 <ProjectDescription>{project.description}</ProjectDescription>
