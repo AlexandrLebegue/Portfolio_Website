@@ -73,7 +73,7 @@ const FilterButton = styled.button<{ $active: boolean }>`
   background-color: ${({ theme, $active }) =>
     $active ? theme.colors.primary : 'transparent'};
   color: ${({ theme, $active }) =>
-    $active ? theme.colors.text.primary : theme.colors.text.secondary};
+    $active ? theme.colors.text.current : theme.colors.text.secondary};
   border: 1px solid ${({ theme, $active }) =>
     $active ? theme.colors.primary : theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.full};
@@ -97,7 +97,7 @@ const ProjectsGrid = styled.div`
 `;
 
 const ProjectCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.dark}99;
+  background-color: ${({ theme }) => theme.colors.background.current}99;
   border: 1px solid ${({ theme }) => theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
@@ -112,7 +112,7 @@ const ProjectCard = styled.div`
 
 const ProjectImage = styled.div`
   height: 180px;
-  background-color: ${({ theme }) => theme.colors.background.code};
+  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#f0f0f0' : theme.colors.background.code};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,7 +148,7 @@ const TechStack = styled.div`
 `;
 
 const TechTag = styled.span`
-  background-color: ${({ theme }) => theme.colors.background.code};
+  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#e0e0e0' : theme.colors.background.code};
   color: ${({ theme }) => theme.colors.text.secondary};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   padding: ${({ theme }) => theme.space.xs} ${({ theme }) => theme.space.sm};
@@ -184,31 +184,54 @@ const ProjectLink = styled.a`
 `;
 
 
+// Function to check if a logo exists at a given URL
+const checkLogoExists = async (url: string): Promise<boolean> => {
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    return response.ok && !text.includes("404: Not Found");
+  } catch (error) {
+    return false;
+  }
+};
+
+// Function to find the first existing logo URL from multiple branches
+const findExistingLogoUrl = async (repoName: string): Promise<string | null> => {
+  const branches = ['master', 'main'];
+  
+  for (const branch of branches) {
+    const logoUrl = `https://raw.githubusercontent.com/AlexandrLebegue/${repoName}/${branch}/logo.png`;
+    const exists = await checkLogoExists(logoUrl);
+    if (exists) {
+      return logoUrl;
+    }
+  }
+  
+  return null;
+};
+
 // Component to handle project image loading with fallback
 interface ProjectImageContentProps {
-  logoUrl: string;
+  repoName: string;
   fallbackImage: string;
   name: string;
 }
 
-const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ logoUrl, fallbackImage, name }) => {
+const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ repoName, fallbackImage, name }) => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(false);
   
   useEffect(() => {
-    const checkLogo = async () => {
-      try {
-        const response = await fetch(logoUrl);
-        const text = await response.text();
-        setLogoLoaded(response.ok && !text.includes("404: Not Found"));
-      } catch (error) {
-        setLogoLoaded(false);
-      }
+    const findLogo = async () => {
+      const existingLogoUrl = await findExistingLogoUrl(repoName);
+      setLogoUrl(existingLogoUrl);
+      setLogoLoaded(!!existingLogoUrl);
     };
     
-    checkLogo();
-  }, [logoUrl]);
+    findLogo();
+  }, [repoName]);
   
-  return logoLoaded ? (
+  return logoLoaded && logoUrl ? (
     <img src={logoUrl} alt={name} />
   ) : (
     <>{fallbackImage}</>
@@ -224,9 +247,6 @@ const Projects: React.FC = () => {
   
   // Process repositories to extract technologies from topics
   const processedRepos = repos.map(repo => {
-    // Try to construct a potential logo URL based on repo name
-    const potentialLogoUrl = `https://raw.githubusercontent.com/AlexandrLebegue/${repo.name}/main/logo.png`;
-    
     return {
       id: repo.id,
       name: repo.name,
@@ -234,7 +254,6 @@ const Projects: React.FC = () => {
       technologies: extractTechnologies(repo.topics),
       language: repo.language,
       image: getLanguageEmoji(repo.language), // Default to language emoji
-      logoUrl: potentialLogoUrl, // Store the potential logo URL for later use
       githubUrl: repo.html_url,
       demoUrl: repo.homepage,
       stars: repo.stargazers_count,
@@ -319,7 +338,7 @@ const Projects: React.FC = () => {
           {filteredProjects.map(project => (
             <ProjectCard key={project.id}>
               <ProjectImage>
-                <ProjectImageContent logoUrl={project.logoUrl} fallbackImage={project.image} name={project.name} />
+                <ProjectImageContent repoName={project.name} fallbackImage={project.image} name={project.name} />
               </ProjectImage>
               <ProjectContent>
                 <ProjectTitle>{project.name}</ProjectTitle>

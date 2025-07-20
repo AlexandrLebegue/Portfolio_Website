@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
-  background-color: ${({ theme }) => theme.colors.background.dark};
+  background-color: ${({ theme }) => theme.colors.background.current};
   border-top: 1px solid ${({ theme }) => theme.colors.ui.border};
   padding: ${({ theme }) => theme.space.xl} 0;
   margin-top: ${({ theme }) => theme.space['3xl']};
@@ -31,7 +31,7 @@ const FooterSection = styled.div`
 
 const FooterHeading = styled.h3`
   font-size: ${({ theme }) => theme.fontSizes.lg};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: ${({ theme }) => theme.colors.text.current};
   margin-bottom: ${({ theme }) => theme.space.md};
   position: relative;
   

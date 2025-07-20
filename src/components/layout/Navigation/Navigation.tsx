@@ -6,9 +6,7 @@ import styled from 'styled-components';
 const navItems = [
   { path: '/', label: 'Accueil' },
   { path: '/projects', label: 'Projets' },
-  { path: '/cv', label: 'CV' },
   { path: '/about', label: 'À propos' },
-  { path: '/blog', label: 'Blog' },
   { path: '/contact', label: 'Contact' },
 ];
 
@@ -114,7 +112,7 @@ const MobileNavPanel = styled.div<{ $isOpen: boolean }>`
   width: 75%;
   max-width: 300px;
   height: 100%;
-  background-color: ${({ theme }) => theme.colors.background.dark};
+  background-color: ${({ theme }) => theme.colors.background.current};
 
   z-index: ${({ theme }) => theme.zIndices.modal + 1};
   padding: ${({ theme }) => theme.space.xl};

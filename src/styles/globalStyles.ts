@@ -21,8 +21,8 @@ const GlobalStyles = createGlobalStyle`
     font-family: ${({ theme }) => theme.fonts.body};
     font-size: ${({ theme }) => theme.fontSizes.md};
     line-height: ${({ theme }) => theme.lineHeights.normal};
-    background-color: ${({ theme }) => theme.colors.background.dark};
-    color: ${({ theme }) => theme.colors.text.primary};
+    background-color: ${({ theme }) => theme.colors.background.current};
+    color: ${({ theme }) => theme.colors.text.current};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -190,7 +190,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-track {
-    background: ${({ theme }) => theme.colors.background.dark};
+    background: ${({ theme }) => theme.colors.background.current};
   }
 
   ::-webkit-scrollbar-thumb {

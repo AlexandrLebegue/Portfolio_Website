@@ -105,7 +105,7 @@ const HeroSection = styled.section`
 const Title = styled.h1`
   font-size: clamp(2.5rem, 5vw, ${({ theme }) => theme.fontSizes['5xl']});
   margin-bottom: ${({ theme }) => theme.space.md};
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.text.primary} 0%, ${({ theme }) => theme.colors.primary} 100%);
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.text.current} 0%, ${({ theme }) => theme.colors.primary} 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -172,7 +172,7 @@ const ProjectsGrid = styled.div`
 `;
 
 const ProjectCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.dark}99;
+  background-color: ${({ theme }) => theme.colors.background.current}99;
   border: 1px solid ${({ theme }) => theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
@@ -187,7 +187,7 @@ const ProjectCard = styled.div`
 
 const ProjectImage = styled.div`
   height: 180px;
-  background-color: ${({ theme }) => theme.colors.background.code};
+  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#f0f0f0' : theme.colors.background.code};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,7 +223,7 @@ const TechStack = styled.div`
 `;
 
 const TechTag = styled.span`
-  background-color: ${({ theme }) => theme.colors.background.code};
+  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#e0e0e0' : theme.colors.background.code};
   color: ${({ theme }) => theme.colors.text.secondary};
   font-size: ${({ theme }) => theme.fontSizes.xs};
   padding: ${({ theme }) => theme.space.xs} ${({ theme }) => theme.space.sm};
@@ -272,7 +272,7 @@ const AboutImage = styled.div`
   width: 300px;
   height: 300px;
   border-radius: ${({ theme }) => theme.borderRadius.full};
-  background-color: ${({ theme }) => theme.colors.background.code};
+  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#f0f0f0' : theme.colors.background.code};
   display: flex;
   align-items: center;
   justify-content: center;

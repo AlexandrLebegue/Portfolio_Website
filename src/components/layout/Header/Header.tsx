@@ -9,7 +9,7 @@ const HeaderContainer = styled.header`
   top: 0;
   left: 0;
   right: 0;
-  background-color: ${({ theme }) => theme.colors.background.dark};
+  background-color: ${({ theme }) => theme.colors.background.current};
   padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.xl};
   display: flex;
   justify-content: space-between;
@@ -25,7 +25,7 @@ const Logo = styled(Link)`
   font-family: ${({ theme }) => theme.fonts.heading};
   font-size: ${({ theme }) => theme.fontSizes.xl};
   font-weight: ${({ theme }) => theme.fontWeights.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: ${({ theme }) => theme.colors.text.current};
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -50,7 +50,7 @@ const RightSection = styled.div`
 const ThemeToggle = styled.button`
   background: none;
   border: none;
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: ${({ theme }) => theme.colors.text.current};
   font-size: ${({ theme }) => theme.fontSizes.lg};
   cursor: pointer;
   padding: ${({ theme }) => theme.space.xs};
