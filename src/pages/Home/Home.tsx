@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import useFeaturedProjects from '../../hooks/useFeaturedProjects';
 
 const HomeContainer = styled.div`
@@ -10,11 +10,6 @@ const HomeContainer = styled.div`
 `;
 
 // Keyframes for animations
-const fadeIn = keyframes`
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-`;
-
 const twinkle = keyframes`
   0% { opacity: 0.2; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1.1); }
@@ -176,6 +171,7 @@ const ProjectCard = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
+  cursor: pointer;
   transition: transform ${({ theme }) => theme.transitions.normal},
     box-shadow ${({ theme }) => theme.transitions.normal};
   
@@ -319,8 +315,15 @@ const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ logoUrl, fall
 };
 
 const Home: React.FC = () => {
+  const navigate = useNavigate();
+  
   // Fetch featured projects from GitHub
   const { projects: featuredProjects, loading, error } = useFeaturedProjects();
+
+  // Handle project card click
+  const handleProjectClick = (projectName: string) => {
+    navigate(`/projects/${projectName}`);
+  };
   return (
     <HomeContainer>
       <HeroSection>
@@ -342,7 +345,7 @@ const Home: React.FC = () => {
         ) : (
           <ProjectsGrid>
             {featuredProjects.map(project => (
-              <ProjectCard key={project.id}>
+              <ProjectCard key={project.id} onClick={() => handleProjectClick(project.name)}>
                 <ProjectImage>
                   <ProjectImageContent
                     logoUrl={`https://raw.githubusercontent.com/AlexandrLebegue/${project.name}/main/logo.png`}

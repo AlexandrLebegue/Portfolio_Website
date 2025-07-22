@@ -94,8 +94,6 @@ const Paragraph = styled.p`
   line-height: ${({ theme }) => theme.lineHeights.loose};
 `;
 
-const SkillsSection = styled.div``;
-
 const SkillsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -132,8 +130,6 @@ const SkillItem = styled.li`
     margin-right: ${({ theme }) => theme.space.sm};
   }
 `;
-
-const InterestsSection = styled.div``;
 
 const InterestsList = styled.div`
   display: grid;

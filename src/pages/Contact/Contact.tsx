@@ -69,22 +69,6 @@ const ContactLink = styled.a`
   }
 `;
 
-const SocialLinks = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.space.lg};
-  margin-top: ${({ theme }) => theme.space.xl};
-`;
-
-const SocialLink = styled.a`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.fontSizes['2xl']};
-  transition: color ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
 const ContactImageContainer = styled.div`
   flex: 1;
   display: flex;

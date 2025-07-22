@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchGitHubRepos, fetchFeaturedRepos, GitHubRepo } from '../services/github';
 
 interface UseGitHubReposOptions {
@@ -25,7 +25,7 @@ const useGitHubRepos = (options: UseGitHubReposOptions = {}): UseGitHubReposResu
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   
-  const fetchRepos = async () => {
+  const fetchRepos = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -40,11 +40,11 @@ const useGitHubRepos = (options: UseGitHubReposOptions = {}): UseGitHubReposResu
     } finally {
       setLoading(false);
     }
-  };
+  }, [featured, excludeForks]);
   
   useEffect(() => {
     fetchRepos();
-  }, [featured, excludeForks]);
+  }, [fetchRepos]);
   
   return { repos, loading, error, refetch: fetchRepos };
 };

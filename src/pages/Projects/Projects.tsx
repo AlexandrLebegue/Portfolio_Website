@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import useGitHubRepos from '../../hooks/useGitHubRepos';
 
@@ -101,6 +102,7 @@ const ProjectCard = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
+  cursor: pointer;
   transition: transform ${({ theme }) => theme.transitions.normal},
     box-shadow ${({ theme }) => theme.transitions.normal};
   
@@ -241,6 +243,7 @@ const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ repoName, fal
 const Projects: React.FC = () => {
   const [filter, setFilter] = useState<string | null>(null);
   const [showForks, setShowForks] = useState<boolean>(false);
+  const navigate = useNavigate();
   
   // Fetch GitHub repositories
   const { repos, loading, error } = useGitHubRepos({ excludeForks: !showForks });
@@ -280,6 +283,11 @@ const Projects: React.FC = () => {
     ? processedRepos.filter(project =>
         project.technologies.includes(filter) || project.language === filter)
     : processedRepos;
+
+  // Handle project card click
+  const handleProjectClick = (projectName: string) => {
+    navigate(`/projects/${projectName}`);
+  };
   
   return (
     <ProjectsContainer>
@@ -336,7 +344,7 @@ const Projects: React.FC = () => {
       ) : (
         <ProjectsGrid>
           {filteredProjects.map(project => (
-            <ProjectCard key={project.id}>
+            <ProjectCard key={project.id} onClick={() => handleProjectClick(project.name)}>
               <ProjectImage>
                 <ProjectImageContent repoName={project.name} fallbackImage={project.image} name={project.name} />
               </ProjectImage>

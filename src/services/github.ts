@@ -30,6 +30,33 @@ export interface GitHubRepo {
   default_branch: string;
 }
 
+export interface GitHubCommit {
+  sha: string;
+  commit: {
+    author: {
+      name: string;
+      email: string;
+      date: string;
+    };
+    committer: {
+      name: string;
+      email: string;
+      date: string;
+    };
+    message: string;
+  };
+  author: {
+    login: string;
+    avatar_url: string;
+  } | null;
+  html_url: string;
+}
+
+export interface CommitStats {
+  date: string;
+  count: number;
+}
+
 export interface GitHubUser {
   login: string;
   id: number;
@@ -58,6 +85,9 @@ const githubApi = axios.create({
   baseURL: GITHUB_API_BASE_URL,
   headers: {
     'Accept': 'application/vnd.github.v3+json',
+    ...(process.env.REACT_APP_GITHUB_TOKEN && {
+      'Authorization': `token ${process.env.REACT_APP_GITHUB_TOKEN}`
+    }),
   },
 });
 
@@ -162,10 +192,136 @@ export const fetchFeaturedRepos = async (): Promise<GitHubRepo[]> => {
     .slice(0, 3);
 };
 
-export default {
+/**
+ * Fetch commit history for a specific repository
+ * @param {string} repoName - The name of the repository
+ * @param {number} perPage - Number of commits to fetch (default: 100)
+ */
+export const fetchGitHubCommits = async (repoName: string, perPage: number = 100): Promise<GitHubCommit[]> => {
+  try {
+    const response = await githubApi.get<GitHubCommit[]>(`/repos/${GITHUB_USERNAME}/${repoName}/commits`, {
+      params: {
+        per_page: Math.min(perPage, 100), // GitHub API limit is 100 per page
+        page: 1,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching commits for ${repoName}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Process commit data to create time-series data for charts
+ * @param {GitHubCommit[]} commits - Array of commits
+ * @returns {CommitStats[]} - Array of commit statistics grouped by date
+ */
+export const processCommitStats = (commits: GitHubCommit[]): CommitStats[] => {
+  // Group commits by date
+  const commitsByDate: Record<string, number> = {};
+  
+  commits.forEach(commit => {
+    const date = new Date(commit.commit.author.date).toISOString().split('T')[0]; // YYYY-MM-DD format
+    commitsByDate[date] = (commitsByDate[date] || 0) + 1;
+  });
+  
+  // Convert to array and sort by date
+  return Object.entries(commitsByDate)
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+};
+
+/**
+ * Fetch commit statistics for a repository
+ * @param {string} repoName - The name of the repository
+ */
+export const fetchCommitStats = async (repoName: string): Promise<CommitStats[]> => {
+  try {
+    const commits = await fetchGitHubCommits(repoName);
+    return processCommitStats(commits);
+  } catch (error) {
+    console.error(`Error fetching commit stats for ${repoName}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch README content for a specific repository
+ * @param {string} repoName - The name of the repository
+ * @param {string} branch - The branch to fetch from (default: 'main')
+ */
+export const fetchGitHubReadme = async (repoName: string, branch: string = 'main'): Promise<string | null> => {
+  try {
+    // Try to fetch README.md from the specified branch
+    const response = await githubApi.get(`/repos/${GITHUB_USERNAME}/${repoName}/contents/README.md`, {
+      params: {
+        ref: branch,
+      },
+    });
+
+    // GitHub API returns base64 encoded content
+    if (response.data && response.data.content) {
+      const content = atob(response.data.content.replace(/\s/g, ''));
+      return content;
+    }
+
+    return null;
+  } catch (error) {
+    // If main branch fails, try master branch
+    if (branch === 'main') {
+      try {
+        return await fetchGitHubReadme(repoName, 'master');
+      } catch (masterError) {
+        console.log(`No README found for ${repoName} in main or master branch`);
+        return null;
+      }
+    }
+    
+    console.log(`No README found for ${repoName} in ${branch} branch`);
+    return null;
+  }
+};
+
+/**
+ * Fetch comprehensive project data including README content
+ * @param {string} repoName - The name of the repository
+ */
+export const fetchProjectData = async (repoName: string): Promise<{
+  repo: GitHubRepo;
+  readmeContent: string | null;
+  commitStats: CommitStats[];
+}> => {
+  try {
+    // Fetch all data in parallel for better performance
+    const [repo, readmeContent, commitStats] = await Promise.all([
+      fetchGitHubRepo(repoName),
+      fetchGitHubReadme(repoName),
+      fetchCommitStats(repoName).catch(() => []) // Don't fail if commits can't be fetched
+    ]);
+
+    return {
+      repo,
+      readmeContent,
+      commitStats,
+    };
+  } catch (error) {
+    console.error(`Error fetching comprehensive project data for ${repoName}:`, error);
+    throw error;
+  }
+};
+
+const githubService = {
   fetchGitHubUser,
   fetchGitHubRepos,
   fetchGitHubRepo,
   fetchGitHubReposByTopics,
   fetchFeaturedRepos,
+  fetchGitHubCommits,
+  fetchCommitStats,
+  fetchGitHubReadme,
+  fetchProjectData,
+  processCommitStats,
 };
+
+export default githubService;
