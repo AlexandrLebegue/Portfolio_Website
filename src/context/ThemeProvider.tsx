@@ -49,10 +49,20 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       background: {
         ...theme.colors.background,
         current: isDarkMode ? theme.colors.background.dark : theme.colors.background.light,
+        code: isDarkMode ? '#1E1E1E' : '#F3F4F6',
       },
       text: {
         ...theme.colors.text,
         current: isDarkMode ? theme.colors.text.primary : theme.colors.text.dark,
+        primary: isDarkMode ? theme.colors.text.primary : theme.colors.text.dark,
+        secondary: isDarkMode ? theme.colors.text.secondary : '#6B7280',
+      },
+      ui: {
+        ...theme.colors.ui,
+        border: isDarkMode ? '#30363D' : '#E5E7EB',
+        hover: isDarkMode ? 'rgba(56, 139, 253, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+        focus: isDarkMode ? 'rgba(56, 139, 253, 0.4)' : 'rgba(59, 130, 246, 0.4)',
+        selection: isDarkMode ? 'rgba(56, 139, 253, 0.3)' : 'rgba(59, 130, 246, 0.3)',
       },
     },
   };

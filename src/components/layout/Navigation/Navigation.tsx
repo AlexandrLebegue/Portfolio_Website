@@ -110,15 +110,14 @@ const MobileNavPanel = styled.div<{ $isOpen: boolean }>`
   top: 0;
   right: 0;
   width: 75%;
-  max-width: 300px;
+  max-width: 320px;
   height: 100%;
   background-color: ${({ theme }) => theme.colors.background.current};
-
   z-index: ${({ theme }) => theme.zIndices.modal + 1};
   padding: ${({ theme }) => theme.space.xl};
   transform: translateX(${({ $isOpen }) => ($isOpen ? '0' : '100%')});
   transition: transform ${({ theme }) => theme.transitions.normal};
-  box-shadow: ${({ theme }) => theme.shadows.lg};
+  box-shadow: ${({ theme }) => theme.shadows.xl};
   border-left: 1px solid ${({ theme }) => theme.colors.ui.border};
 `;
 
@@ -127,6 +126,15 @@ const MobileNavHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: ${({ theme }) => theme.space.xl};
+  padding-bottom: ${({ theme }) => theme.space.md};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.ui.border};
+  
+  h2 {
+    color: ${({ theme }) => theme.colors.text.primary};
+    font-size: ${({ theme }) => theme.fontSizes.xl};
+    font-weight: ${({ theme }) => theme.fontWeights.semibold};
+    margin: 0;
+  }
 `;
 
 const MobileNavCloseButton = styled.button`
@@ -155,34 +163,54 @@ const MobileNavList = styled.ul`
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.space.lg};
-  // background-color: rgba(53, 52, 53, 0.86);
-
+  gap: ${({ theme }) => theme.space.sm};
 `;
 
-const MobileNavItem = styled.li``;
+const MobileNavItem = styled.li`
+  width: 100%;
+`;
 
 const MobileNavLink = styled(NavLink)`
   color: ${({ theme }) => theme.colors.text.primary};
   text-decoration: none;
   font-size: ${({ theme }) => theme.fontSizes.lg};
   font-weight: ${({ theme }) => theme.fontWeights.medium};
-  padding: ${({ theme }) => theme.space.sm} ${({ theme }) => theme.space.md};
-  display: block;
+  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.lg};
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
   background-color: ${({ theme }) => theme.colors.background.code};
+  border: 1px solid ${({ theme }) => theme.colors.ui.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
-  transition: color ${({ theme }) => theme.transitions.normal},
-    background-color ${({ theme }) => theme.transitions.normal};
+  transition: all ${({ theme }) => theme.transitions.normal};
+  position: relative;
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
     background-color: ${({ theme }) => theme.colors.ui.hover};
+    border-color: ${({ theme }) => theme.colors.primary};
+    transform: translateY(-1px);
+    box-shadow: ${({ theme }) => theme.shadows.md};
   }
 
   &.active {
     color: ${({ theme }) => theme.colors.primary};
     font-weight: ${({ theme }) => theme.fontWeights.semibold};
-    background-color: ${({ theme }) => theme.colors.ui};
+    background-color: ${({ theme }) => theme.colors.ui.hover};
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: ${({ theme }) => theme.shadows.sm};
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: ${({ theme }) => theme.colors.primary};
+      border-radius: ${({ theme }) => theme.borderRadius.sm} 0 0 ${({ theme }) => theme.borderRadius.sm};
+    }
   }
 `;
 
