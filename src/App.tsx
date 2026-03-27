@@ -9,6 +9,8 @@ import Projects from './pages/Projects/Projects';
 import ProjectDetail from './pages/ProjectDetail/ProjectDetail';
 import About from './pages/About/About';
 import Contact from './pages/Contact/Contact';
+import Moi from './pages/Moi/Moi';
+import LinkedInImport from './pages/LinkedInImport/LinkedInImport';
 
 const App: React.FC = () => {
   return (
@@ -20,7 +22,9 @@ const App: React.FC = () => {
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectName" element={<ProjectDetail />} />
             <Route path="/about" element={<About />} />
+            <Route path="/moi" element={<Moi />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/linkedin-import" element={<LinkedInImport />} />
             
             {/* Add a catch-all route for 404 pages later */}
           </Routes>

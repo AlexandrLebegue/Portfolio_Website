@@ -1,7 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThemeProvider as StyledThemeProvider } from 'styled-components';
-import { theme } from '../styles/theme';
-import GlobalStyles from '../styles/globalStyles';
 
 // Define theme context type
 type ThemeContextType = {
@@ -29,8 +26,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return savedTheme ? savedTheme === 'dark' : true;
   });
 
-  // Save theme preference to localStorage whenever it changes
+  // Apply dark class to html element and save preference
   useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
@@ -39,40 +42,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setIsDarkMode(!isDarkMode);
   };
 
-  // For now, we'll use the same theme object but in the future we could
-  // extend this to have separate light/dark themes or modify theme values
-  const currentTheme = {
-    ...theme,
-    // Override background and text colors based on mode
-    colors: {
-      ...theme.colors,
-      background: {
-        ...theme.colors.background,
-        current: isDarkMode ? theme.colors.background.dark : theme.colors.background.light,
-        code: isDarkMode ? '#1E1E1E' : '#F3F4F6',
-      },
-      text: {
-        ...theme.colors.text,
-        current: isDarkMode ? theme.colors.text.primary : theme.colors.text.dark,
-        primary: isDarkMode ? theme.colors.text.primary : theme.colors.text.dark,
-        secondary: isDarkMode ? theme.colors.text.secondary : '#6B7280',
-      },
-      ui: {
-        ...theme.colors.ui,
-        border: isDarkMode ? '#30363D' : '#E5E7EB',
-        hover: isDarkMode ? 'rgba(56, 139, 253, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-        focus: isDarkMode ? 'rgba(56, 139, 253, 0.4)' : 'rgba(59, 130, 246, 0.4)',
-        selection: isDarkMode ? 'rgba(56, 139, 253, 0.3)' : 'rgba(59, 130, 246, 0.3)',
-      },
-    },
-  };
-
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      <StyledThemeProvider theme={currentTheme}>
-        <GlobalStyles />
-        {children}
-      </StyledThemeProvider>
+      {children}
     </ThemeContext.Provider>
   );
 };

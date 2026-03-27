@@ -1,175 +1,71 @@
 import React from 'react';
-import styled from 'styled-components';
-
-const ContactContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.space.xl};
-`;
-
-const PageHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.space.xl};
-`;
-
-const Title = styled.h1`
-  font-size: ${({ theme }) => theme.fontSizes['4xl']};
-  margin-bottom: ${({ theme }) => theme.space.md};
-`;
-
-const Subtitle = styled.p`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  max-width: 800px;
-`;
-
-const ContactContent = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.space['2xl']};
-  
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    flex-direction: column;
-  }
-`;
-
-const ContactInfo = styled.div`
-  flex: 1;
-`;
-
-const ContactMethods = styled.div`
-  margin-top: ${({ theme }) => theme.space.xl};
-`;
-
-const ContactMethod = styled.div`
-  margin-bottom: ${({ theme }) => theme.space.lg};
-`;
-
-const ContactMethodTitle = styled.h3`
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  margin-bottom: ${({ theme }) => theme.space.sm};
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space.sm};
-`;
-
-const ContactMethodIcon = styled.span`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  color: ${({ theme }) => theme.colors.primary};
-`;
-
-const ContactLink = styled.a`
-  color: ${({ theme }) => theme.colors.text.primary};
-  text-decoration: none;
-  transition: color ${({ theme }) => theme.transitions.normal};
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space.sm};
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const ContactImageContainer = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    display: none;
-  }
-`;
-
-const ContactImage = styled.div`
-  width: 100%;
-  max-width: 400px;
-  height: 400px;
-  background-color: ${({ theme }) => theme.colors.background.code};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${({ theme }) => theme.fontSizes['5xl']};
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, ${({ theme }) => theme.colors.primary}20 0%, transparent 70%);
-    z-index: 0;
-  }
-  
-  span {
-    position: relative;
-    z-index: 1;
-  }
-`;
+import AnimateIn from '../../components/AnimateIn/AnimateIn';
 
 const Contact: React.FC = () => {
   return (
-    <ContactContainer>
-      <PageHeader>
-        <Title>Contactez-Moi</Title>
-        <Subtitle>
-          Je suis toujours ouvert à discuter de nouveaux projets, opportunités ou collaborations.
-          N'hésitez pas à me contacter via l'un des canaux ci-dessous.
-        </Subtitle>
-      </PageHeader>
-      
-      <ContactContent>
-        <ContactInfo>
-          <p>
-            Que vous ayez une question sur mon travail, que vous souhaitiez discuter d'un projet potentiel,
-            ou simplement dire bonjour, je serais ravi d'avoir de vos nouvelles. Je suis actuellement ouvert à
-            des opportunités de freelance dans le développement d'agents IA.
+    <div className="flex flex-col gap-8">
+      {/* Page Header */}
+      <div className="mb-8">
+        <AnimateIn type="fadeDown" delay={0}>
+          <h1 className="text-4xl mb-4">Contactez-Moi</h1>
+        </AnimateIn>
+        <AnimateIn type="fadeUp" delay={100}>
+          <p className="text-lg max-w-[800px] text-gray-500 dark:text-text-secondary-dark">
+            Je suis toujours ouvert à discuter de nouveaux projets, opportunités ou collaborations.
+            N'hésitez pas à me contacter via l'un des canaux ci-dessous.
           </p>
-          
-          <ContactMethods>
-            <ContactMethod>
-              <ContactMethodTitle>
-                <ContactMethodIcon>✉️</ContactMethodIcon>
-                Courriel
-              </ContactMethodTitle>
-              <ContactLink href="mailto:contact@alexandrelebegue.com">
-                alexandrelebegue12@gmail.com
-              </ContactLink>
-            </ContactMethod>
-            
-            <ContactMethod>
-              <ContactMethodTitle>
-                <ContactMethodIcon>🔗</ContactMethodIcon>
-                LinkedIn
-              </ContactMethodTitle>
-              <ContactLink href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/" target="_blank" rel="noopener noreferrer">
-                linkedin.com/in/alexandrlebegue
-              </ContactLink>
-            </ContactMethod>
-            
-            <ContactMethod>
-              <ContactMethodTitle>
-                <ContactMethodIcon>💻</ContactMethodIcon>
-                GitHub
-              </ContactMethodTitle>
-              <ContactLink href="https://github.com/AlexandrLebegue" target="_blank" rel="noopener noreferrer">
-                github.com/AlexandrLebegue
-              </ContactLink>
-            </ContactMethod>
-          </ContactMethods>
-          
-        </ContactInfo>
-        
-        <ContactImageContainer>
-          <ContactImage>
-            <span>📡</span>
-          </ContactImage>
-        </ContactImageContainer>
-      </ContactContent>
-    </ContactContainer>
+        </AnimateIn>
+      </div>
+
+      {/* Contact Content */}
+      <div className="flex flex-col md:flex-row gap-10">
+        {/* Contact Info */}
+        <div className="flex-1">
+          <AnimateIn type="fadeUp" delay={150}>
+            <p className="text-text-dark dark:text-text-primary-dark leading-relaxed">
+              Que vous ayez une question sur mon travail, que vous souhaitiez discuter d'un projet potentiel,
+              ou simplement dire bonjour, je serais ravi d'avoir de vos nouvelles. Je suis actuellement ouvert à
+              des opportunités de freelance dans le développement d'agents IA.
+            </p>
+          </AnimateIn>
+
+          <div className="mt-8 space-y-6">
+            {[
+              { icon: '✉️', title: 'Courriel', href: 'mailto:contact@alexandrelebegue.com', text: 'alexandrelebegue12@gmail.com' },
+              { icon: '🔗', title: 'LinkedIn', href: 'https://www.linkedin.com/in/alexandre-lebegue-6a3718151/', text: 'linkedin.com/in/alexandrlebegue', external: true },
+              { icon: '💻', title: 'GitHub', href: 'https://github.com/AlexandrLebegue', text: 'github.com/AlexandrLebegue', external: true },
+            ].map((method, index) => (
+              <AnimateIn key={method.title} type="fadeLeft" delay={200 + index * 150}>
+                <div>
+                  <h3 className="text-lg mb-2 flex items-center gap-2">
+                    <span className="text-xl text-primary">{method.icon}</span>
+                    {method.title}
+                  </h3>
+                  <a
+                    href={method.href}
+                    {...(method.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className="flex items-center gap-2 no-underline transition-colors duration-200
+                      text-text-dark dark:text-text-primary-dark hover:text-primary"
+                  >
+                    {method.text}
+                  </a>
+                </div>
+              </AnimateIn>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact Image */}
+        <AnimateIn type="scale" delay={300} className="flex-1 flex justify-center items-center md:block hidden">
+          <div className="w-full max-w-[400px] h-[400px] rounded-lg relative overflow-hidden
+            flex items-center justify-center text-5xl
+            bg-gray-100 dark:bg-bg-code">
+            <div className="absolute inset-0 bg-gradient-radial from-primary/10 to-transparent z-0" />
+            <span className="relative z-10">📡</span>
+          </div>
+        </AnimateIn>
+      </div>
+    </div>
   );
 };
 

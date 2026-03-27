@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import styled from 'styled-components';
+import { cn } from '../../../utils/cn';
 
 // Navigation links
 const navItems = [
@@ -9,210 +9,6 @@ const navItems = [
   { path: '/about', label: 'À propos' },
   { path: '/contact', label: 'Contact' },
 ];
-
-const Nav = styled.nav`
-  display: flex;
-  align-items: center;
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    display: none;
-  }
-`;
-
-const NavList = styled.ul`
-  display: flex;
-  gap: ${({ theme }) => theme.space.lg};
-  list-style: none;
-  margin: 0;
-  padding: 0;
-`;
-
-const NavItem = styled.li`
-  position: relative;
-`;
-
-const NavLinkStyled = styled(NavLink)`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  text-decoration: none;
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  padding: ${({ theme }) => theme.space.xs} ${({ theme }) => theme.space.sm};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  transition: color ${({ theme }) => theme.transitions.normal},
-    background-color ${({ theme }) => theme.transitions.normal};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.text.primary};
-    background-color: ${({ theme }) => theme.colors.ui.hover};
-  }
-
-  &.active {
-    color: ${({ theme }) => theme.colors.primary};
-    font-weight: ${({ theme }) => theme.fontWeights.semibold};
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: ${({ theme }) => theme.colors.primary};
-      border-radius: ${({ theme }) => theme.borderRadius.full};
-    }
-  }
-`;
-
-// Mobile navigation components
-const MobileNavButton = styled.button`
-  display: none;
-  background: none;
-
-  border: none;
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  cursor: pointer;
-  padding: ${({ theme }) => theme.space.xs};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  transition: color ${({ theme }) => theme.transitions.normal},
-    background-color ${({ theme }) => theme.transitions.normal};
-
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.ui.hover};
-
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
-const MobileNavOverlay = styled.div<{ $isOpen: boolean }>`
-  display: ${({ $isOpen }) => ($isOpen ? 'block' : 'none')};
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-
-  z-index: ${({ theme }) => theme.zIndices.modal};
-  backdrop-filter: blur(4px);
-`;
-
-const MobileNavPanel = styled.div<{ $isOpen: boolean }>`
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 75%;
-  max-width: 320px;
-  height: 100%;
-  background-color: ${({ theme }) => theme.colors.background.current};
-  z-index: ${({ theme }) => theme.zIndices.modal + 1};
-  padding: ${({ theme }) => theme.space.xl};
-  transform: translateX(${({ $isOpen }) => ($isOpen ? '0' : '100%')});
-  transition: transform ${({ theme }) => theme.transitions.normal};
-  box-shadow: ${({ theme }) => theme.shadows.xl};
-  border-left: 1px solid ${({ theme }) => theme.colors.ui.border};
-`;
-
-const MobileNavHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: ${({ theme }) => theme.space.xl};
-  padding-bottom: ${({ theme }) => theme.space.md};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.ui.border};
-  
-  h2 {
-    color: ${({ theme }) => theme.colors.text.primary};
-    font-size: ${({ theme }) => theme.fontSizes.xl};
-    font-weight: ${({ theme }) => theme.fontWeights.semibold};
-    margin: 0;
-  }
-`;
-
-const MobileNavCloseButton = styled.button`
-  background: none;
-  border: none;
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  cursor: pointer;
-  padding: ${({ theme }) => theme.space.xs};
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color ${({ theme }) => theme.transitions.normal},
-    background-color ${({ theme }) => theme.transitions.normal};
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.ui.hover};
-  }
-`;
-
-const MobileNavList = styled.ul`
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.space.sm};
-`;
-
-const MobileNavItem = styled.li`
-  width: 100%;
-`;
-
-const MobileNavLink = styled(NavLink)`
-  color: ${({ theme }) => theme.colors.text.primary};
-  text-decoration: none;
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  padding: ${({ theme }) => theme.space.md} ${({ theme }) => theme.space.lg};
-  display: flex;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: ${({ theme }) => theme.colors.background.code};
-  border: 1px solid ${({ theme }) => theme.colors.ui.border};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  transition: all ${({ theme }) => theme.transitions.normal};
-  position: relative;
-
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.ui.hover};
-    border-color: ${({ theme }) => theme.colors.primary};
-    transform: translateY(-1px);
-    box-shadow: ${({ theme }) => theme.shadows.md};
-  }
-
-  &.active {
-    color: ${({ theme }) => theme.colors.primary};
-    font-weight: ${({ theme }) => theme.fontWeights.semibold};
-    background-color: ${({ theme }) => theme.colors.ui.hover};
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: ${({ theme }) => theme.shadows.sm};
-    
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background-color: ${({ theme }) => theme.colors.primary};
-      border-radius: ${({ theme }) => theme.borderRadius.sm} 0 0 ${({ theme }) => theme.borderRadius.sm};
-    }
-  }
-`;
 
 const Navigation: React.FC = () => {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -228,46 +24,119 @@ const Navigation: React.FC = () => {
   return (
     <>
       {/* Desktop Navigation */}
-      <Nav>
-        <NavList>
+      <nav className="hidden md:flex items-center">
+        <ul className="flex gap-6 list-none m-0 p-0">
           {navItems.map((item) => (
-            <NavItem key={item.path}>
-              <NavLinkStyled to={item.path} end={item.path === '/'}>
-                {item.label}
-              </NavLinkStyled>
-            </NavItem>
-          ))}
-        </NavList>
-      </Nav>
-
-      {/* Mobile Navigation Button */}
-      <MobileNavButton onClick={toggleMobileNav} aria-label="Open navigation menu">
-        ☰
-      </MobileNavButton>
-
-      {/* Mobile Navigation Panel */}
-      <MobileNavOverlay $isOpen={isMobileNavOpen} onClick={closeMobileNav} />
-      <MobileNavPanel $isOpen={isMobileNavOpen}>
-        <MobileNavHeader>
-          <h2>Menu</h2>
-          <MobileNavCloseButton onClick={closeMobileNav} aria-label="Fermer le menu de navigation">
-            ✕
-          </MobileNavCloseButton>
-        </MobileNavHeader>
-        <MobileNavList>
-          {navItems.map((item) => (
-            <MobileNavItem key={item.path}>
-              <MobileNavLink 
-                to={item.path} 
-                end={item.path === '/'} 
-                onClick={closeMobileNav}
+            <li key={item.path} className="relative">
+              <NavLink
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                  cn(
+                    'no-underline text-base font-medium px-2 py-1 rounded-md',
+                    'transition-all duration-200',
+                    'text-gray-500 dark:text-text-secondary-dark',
+                    'hover:text-text-dark hover:bg-ui-hover-light',
+                    'dark:hover:text-text-primary-dark dark:hover:bg-ui-hover',
+                    isActive && [
+                      'text-primary dark:text-primary font-semibold',
+                      'after:content-[""] after:absolute after:-bottom-1 after:left-0',
+                      'after:w-full after:h-0.5 after:bg-primary after:rounded-full',
+                    ]
+                  )
+                }
               >
                 {item.label}
-              </MobileNavLink>
-            </MobileNavItem>
+              </NavLink>
+            </li>
           ))}
-        </MobileNavList>
-      </MobileNavPanel>
+        </ul>
+      </nav>
+
+      {/* Mobile Navigation Button */}
+      <button
+        onClick={toggleMobileNav}
+        aria-label="Open navigation menu"
+        className="flex md:hidden items-center justify-center
+          bg-transparent border-none text-xl cursor-pointer p-1 rounded-md
+          text-text-dark dark:text-text-primary-dark
+          transition-all duration-200
+          hover:text-primary hover:bg-ui-hover-light dark:hover:bg-ui-hover"
+      >
+        ☰
+      </button>
+
+      {/* Mobile Navigation Overlay */}
+      <div
+        className={cn(
+          'fixed inset-0 z-modal backdrop-blur-sm transition-opacity duration-300',
+          isMobileNavOpen
+            ? 'opacity-100 pointer-events-auto bg-black/70'
+            : 'opacity-0 pointer-events-none'
+        )}
+        onClick={closeMobileNav}
+      />
+
+      {/* Mobile Navigation Panel */}
+      <div
+        className={cn(
+          'fixed top-0 right-0 w-3/4 max-w-[320px] h-full z-[1301]',
+          'flex flex-col p-8 shadow-xl border-l transition-transform duration-300',
+          'bg-bg-light border-ui-border-light',
+          'dark:bg-bg-dark dark:border-ui-border',
+          isMobileNavOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+      >
+        {/* Mobile Nav Header */}
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-ui-border-light dark:border-ui-border">
+          <h2 className="text-xl font-semibold m-0 text-text-dark dark:text-text-primary-dark">
+            Menu
+          </h2>
+          <button
+            onClick={closeMobileNav}
+            aria-label="Fermer le menu de navigation"
+            className="bg-transparent border-none text-xl cursor-pointer p-1 rounded-full
+              flex items-center justify-center transition-all duration-200
+              text-text-dark dark:text-text-primary-dark
+              hover:text-primary hover:bg-ui-hover-light dark:hover:bg-ui-hover"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Mobile Nav Links */}
+        <ul className="list-none m-0 p-0 flex flex-col gap-2">
+          {navItems.map((item) => (
+            <li key={item.path} className="w-full">
+              <NavLink
+                to={item.path}
+                end={item.path === '/'}
+                onClick={closeMobileNav}
+                className={({ isActive }) =>
+                  cn(
+                    'no-underline text-lg font-medium flex items-center w-full',
+                    'px-6 py-4 rounded-md border transition-all duration-200 relative',
+                    'bg-bg-code-light border-ui-border-light',
+                    'dark:bg-bg-code dark:border-ui-border',
+                    'text-text-dark dark:text-text-primary-dark',
+                    'hover:text-primary hover:bg-ui-hover-light hover:border-primary',
+                    'hover:-translate-y-0.5 hover:shadow-md',
+                    'dark:hover:bg-ui-hover dark:hover:border-primary',
+                    isActive && [
+                      'text-primary font-semibold bg-ui-hover-light dark:bg-ui-hover',
+                      'border-primary shadow-sm',
+                      'before:content-[""] before:absolute before:left-0 before:top-0',
+                      'before:bottom-0 before:w-1 before:bg-primary before:rounded-l',
+                    ]
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
     </>
   );
 };

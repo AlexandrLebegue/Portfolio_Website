@@ -1,5 +1,6 @@
 import { GitHubRepo } from './github';
-import { generateProjectSummary } from './openrouter';
+import { generateProjectSummary, generateLinkedInSummary } from './openrouter';
+import { LinkedInPortfolioData } from '../types/linkedin-import.types';
 
 export interface AISummaryData {
   summary: string;
@@ -153,12 +154,119 @@ export const getCacheStats = () => {
   };
 };
 
+/**
+ * LinkedIn Summary Input
+ */
+export interface LinkedInSummaryInput {
+  data: LinkedInPortfolioData;
+}
+
+/**
+ * Generate cache key for LinkedIn summary
+ */
+const getLinkedInCacheKey = (): string => {
+  return 'ai_summary_linkedin_profile';
+};
+
+/**
+ * Prepare LinkedIn data for AI summary generation
+ */
+const prepareLinkedInData = (data: LinkedInPortfolioData) => {
+  return {
+    profile: data.profile ? {
+      firstName: data.profile.firstName,
+      lastName: data.profile.lastName,
+      headline: data.profile.headline,
+      summary: data.profile.summary,
+    } : null,
+    positions: data.positions.map(p => ({
+      companyName: p.companyName,
+      title: p.title,
+      description: p.description,
+      isCurrent: p.isCurrent,
+    })),
+    education: data.education.map(e => ({
+      schoolName: e.schoolName,
+      degreeName: e.degreeName,
+      notes: e.notes,
+    })),
+    skills: data.skills.map(s => ({ name: s.name })),
+  };
+};
+
+/**
+ * Generate AI summary for LinkedIn profile with caching
+ */
+export const generateLinkedInAISummary = async (input: LinkedInSummaryInput): Promise<AISummaryData> => {
+  const cacheKey = getLinkedInCacheKey();
+  
+  // Check cache first
+  const cachedSummary = summaryCache.get(cacheKey);
+  if (cachedSummary && isCacheValid(cachedSummary)) {
+    return {
+      ...cachedSummary,
+      cached: true,
+    };
+  }
+  
+  try {
+    // Prepare data for AI generation
+    const linkedInData = prepareLinkedInData(input.data);
+    
+    // Generate summary using OpenRouter API
+    const summary = await generateLinkedInSummary(linkedInData);
+    
+    // Create summary data object
+    const summaryData: AISummaryData = {
+      summary: summary.trim(),
+      generatedAt: Date.now(),
+      cached: false,
+    };
+    
+    // Cache the result
+    summaryCache.set(cacheKey, summaryData);
+    
+    return summaryData;
+  } catch (error) {
+    console.error('Error generating LinkedIn AI summary:', error);
+    throw new Error('Failed to generate LinkedIn AI summary');
+  }
+};
+
+/**
+ * Get cached LinkedIn summary if available
+ */
+export const getCachedLinkedInSummary = (): AISummaryData | null => {
+  const cacheKey = getLinkedInCacheKey();
+  const cachedSummary = summaryCache.get(cacheKey);
+  
+  if (cachedSummary && isCacheValid(cachedSummary)) {
+    return {
+      ...cachedSummary,
+      cached: true,
+    };
+  }
+  
+  return null;
+};
+
+/**
+ * Clear LinkedIn profile cache
+ */
+export const clearLinkedInCache = (): void => {
+  const cacheKey = getLinkedInCacheKey();
+  summaryCache.delete(cacheKey);
+};
+
 const aiSummaryService = {
   generateAISummary,
   getCachedSummary,
   clearProjectCache,
   clearAllCache,
   getCacheStats,
+  generateLinkedInAISummary,
+  getCachedLinkedInSummary,
+  clearLinkedInCache,
 };
 
 export default aiSummaryService;

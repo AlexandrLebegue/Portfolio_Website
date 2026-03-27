@@ -1,190 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import { cn } from '../../utils/cn';
 import useGitHubRepos from '../../hooks/useGitHubRepos';
+import AnimateIn from '../../components/AnimateIn/AnimateIn';
 
 // Map of languages to emoji icons
 const languageIcons: Record<string, string> = {
-  JavaScript: '📜',
-  TypeScript: '📘',
-  Python: '🐍',
-  Java: '☕',
-  'C++': '⚙️',
-  C: '🔧',
-  'C#': '🎮',
-  HTML: '🌐',
-  CSS: '🎨',
-  Ruby: '💎',
-  Go: '🐹',
-  Rust: '🦀',
-  Swift: '🍎',
-  Kotlin: '📱',
-  PHP: '🐘',
-  Shell: '🐚',
-  Jupyter: '📊',
-  Dockerfile: '🐳',
-  MATLAB: '🧮',
-  R: '📈',
-  // Default icon for other languages
-  default: '💻',
+  JavaScript: '📜', TypeScript: '📘', Python: '🐍', Java: '☕',
+  'C++': '⚙️', C: '🔧', 'C#': '🎮', HTML: '🌐', CSS: '🎨',
+  Ruby: '💎', Go: '🐹', Rust: '🦀', Swift: '🍎', Kotlin: '📱',
+  PHP: '🐘', Shell: '🐚', Jupyter: '📊', Dockerfile: '🐳',
+  MATLAB: '🧮', R: '📈', default: '💻',
 };
 
-// Function to get emoji for a language
 const getLanguageEmoji = (language: string | null): string => {
   if (!language) return languageIcons.default;
   return languageIcons[language] || languageIcons.default;
 };
 
-// Function to extract topics as technologies
 const extractTechnologies = (topics: string[]): string[] => {
-  // Filter out non-technology topics if needed
   const nonTechTopics = ['featured', 'portfolio', 'project'];
   return topics.filter(topic => !nonTechTopics.includes(topic));
 };
-
-const ProjectsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.space.xl};
-`;
-
-const PageHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.space.xl};
-`;
-
-const Title = styled.h1`
-  font-size: ${({ theme }) => theme.fontSizes['4xl']};
-  margin-bottom: ${({ theme }) => theme.space.md};
-`;
-
-const Description = styled.p`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.fontSizes.lg};
-  max-width: 800px;
-`;
-
-const FiltersContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.space.md};
-  margin-bottom: ${({ theme }) => theme.space.xl};
-`;
-
-const FilterButton = styled.button<{ $active: boolean }>`
-  background-color: ${({ theme, $active }) =>
-    $active ? theme.colors.primary : 'transparent'};
-  color: ${({ theme, $active }) =>
-    $active ? theme.colors.text.current : theme.colors.text.secondary};
-  border: 1px solid ${({ theme, $active }) =>
-    $active ? theme.colors.primary : theme.colors.ui.border};
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  padding: ${({ theme }) => theme.space.xs} ${({ theme }) => theme.space.md};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  cursor: pointer;
-  transition: all ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    background-color: ${({ theme, $active }) =>
-      $active ? theme.colors.primary : theme.colors.ui.hover};
-    border-color: ${({ theme, $active }) =>
-      $active ? theme.colors.primary : theme.colors.primary};
-  }
-`;
-
-const ProjectsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: ${({ theme }) => theme.space.xl};
-`;
-
-const ProjectCard = styled.div`
-  background-color: ${({ theme }) => theme.colors.background.current}99;
-  border: 1px solid ${({ theme }) => theme.colors.ui.border};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform ${({ theme }) => theme.transitions.normal},
-    box-shadow ${({ theme }) => theme.transitions.normal};
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: ${({ theme }) => theme.shadows.lg};
-  }
-`;
-
-const ProjectImage = styled.div`
-  height: 180px;
-  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#f0f0f0' : theme.colors.background.code};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${({ theme }) => theme.fontSizes['3xl']};
-  
-  & > img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-`;
-
-const ProjectContent = styled.div`
-  padding: ${({ theme }) => theme.space.lg};
-`;
-
-const ProjectTitle = styled.h3`
-  font-size: ${({ theme }) => theme.fontSizes.xl};
-  margin-bottom: ${({ theme }) => theme.space.sm};
-`;
-
-const ProjectDescription = styled.p`
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  margin-bottom: ${({ theme }) => theme.space.md};
-`;
-
-const TechStack = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.space.xs};
-  margin-bottom: ${({ theme }) => theme.space.md};
-`;
-
-const TechTag = styled.span`
-  background-color: ${({ theme }) => theme.colors.background.current === theme.colors.background.light ? '#e0e0e0' : theme.colors.background.code};
-  color: ${({ theme }) => theme.colors.text.secondary};
-  font-size: ${({ theme }) => theme.fontSizes.xs};
-  padding: ${({ theme }) => theme.space.xs} ${({ theme }) => theme.space.sm};
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  font-family: ${({ theme }) => theme.fonts.code};
-`;
-
-const ProjectMeta = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.space.md};
-  margin-bottom: ${({ theme }) => theme.space.md};
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  color: ${({ theme }) => theme.colors.text.secondary};
-`;
-
-const ProjectLinks = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.space.md};
-  margin-top: ${({ theme }) => theme.space.md};
-`;
-
-const ProjectLink = styled.a`
-  display: inline-flex;
-  align-items: center;
-  color: ${({ theme }) => theme.colors.primary};
-  font-weight: ${({ theme }) => theme.fontWeights.medium};
-  gap: ${({ theme }) => theme.space.xs};
-  text-decoration: none;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 
 // Function to check if a logo exists at a given URL
 const checkLogoExists = async (url: string): Promise<boolean> => {
@@ -200,15 +37,11 @@ const checkLogoExists = async (url: string): Promise<boolean> => {
 // Function to find the first existing logo URL from multiple branches
 const findExistingLogoUrl = async (repoName: string): Promise<string | null> => {
   const branches = ['master', 'main'];
-  
   for (const branch of branches) {
     const logoUrl = `https://raw.githubusercontent.com/AlexandrLebegue/${repoName}/${branch}/logo.png`;
     const exists = await checkLogoExists(logoUrl);
-    if (exists) {
-      return logoUrl;
-    }
+    if (exists) return logoUrl;
   }
-  
   return null;
 };
 
@@ -222,19 +55,18 @@ interface ProjectImageContentProps {
 const ProjectImageContent: React.FC<ProjectImageContentProps> = ({ repoName, fallbackImage, name }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoLoaded, setLogoLoaded] = useState(false);
-  
+
   useEffect(() => {
     const findLogo = async () => {
       const existingLogoUrl = await findExistingLogoUrl(repoName);
       setLogoUrl(existingLogoUrl);
       setLogoLoaded(!!existingLogoUrl);
     };
-    
     findLogo();
   }, [repoName]);
-  
+
   return logoLoaded && logoUrl ? (
-    <img src={logoUrl} alt={name} />
+    <img src={logoUrl} alt={name} className="w-full h-full object-contain" />
   ) : (
     <>{fallbackImage}</>
   );
@@ -244,142 +76,182 @@ const Projects: React.FC = () => {
   const [filter, setFilter] = useState<string | null>(null);
   const [showForks, setShowForks] = useState<boolean>(false);
   const navigate = useNavigate();
-  
-  // Fetch GitHub repositories
+
   const { repos, loading, error } = useGitHubRepos({ excludeForks: !showForks });
-  
-  // Process repositories to extract technologies from topics
-  const processedRepos = repos.map(repo => {
-    return {
-      id: repo.id,
-      name: repo.name,
-      description: repo.description || 'No description provided',
-      technologies: extractTechnologies(repo.topics),
-      language: repo.language,
-      image: getLanguageEmoji(repo.language), // Default to language emoji
-      githubUrl: repo.html_url,
-      demoUrl: repo.homepage,
-      stars: repo.stargazers_count,
-      forks: repo.forks_count,
-      updatedAt: new Date(repo.updated_at),
-    };
-  });
-  
-  // Extract unique technologies for filter buttons
+
+  const processedRepos = repos.map(repo => ({
+    id: repo.id,
+    name: repo.name,
+    description: repo.description || 'No description provided',
+    technologies: extractTechnologies(repo.topics),
+    language: repo.language,
+    image: getLanguageEmoji(repo.language),
+    githubUrl: repo.html_url,
+    demoUrl: repo.homepage,
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    updatedAt: new Date(repo.updated_at),
+  }));
+
   const allTechnologies = processedRepos.flatMap(project => project.technologies);
   const uniqueTechnologies = [...new Set(allTechnologies)].sort();
-  
-  // Add languages as additional filter options if they're not already in topics
   const languages = processedRepos
     .map(project => project.language)
     .filter((language): language is string => language !== null && !allTechnologies.includes(language));
   const uniqueLanguages = [...new Set(languages)];
-  
-  // Combine technologies and languages for filtering
   const allFilterOptions = [...uniqueTechnologies, ...uniqueLanguages];
-  
-  // Filter projects based on selected technology or language
+
   const filteredProjects = filter
     ? processedRepos.filter(project =>
         project.technologies.includes(filter) || project.language === filter)
     : processedRepos;
 
-  // Handle project card click
   const handleProjectClick = (projectName: string) => {
     navigate(`/projects/${projectName}`);
   };
-  
+
   return (
-    <ProjectsContainer>
-      <PageHeader>
-        <Title>Mes Projets</Title>
-        <Description>
-          Une collection de mes travaux en ingénierie aérospatiale, développement logiciel et science des données.
-          Ces projets mettent en valeur mes compétences et mes intérêts pour repousser les frontières technologiques.
-        </Description>
-      </PageHeader>
-      
-      <FiltersContainer>
-        <div>
-          <FilterButton
-            $active={filter === null}
+    <div className="flex flex-col gap-8">
+      {/* Page Header */}
+      <div className="mb-8">
+        <AnimateIn type="fadeDown" delay={0}>
+          <h1 className="text-4xl mb-4">Mes Projets</h1>
+        </AnimateIn>
+        <AnimateIn type="fadeUp" delay={100}>
+          <p className="text-lg max-w-[800px] text-gray-500 dark:text-text-secondary-dark">
+            Une collection de mes travaux en ingénierie aérospatiale, développement logiciel et science des données.
+            Ces projets mettent en valeur mes compétences et mes intérêts pour repousser les frontières technologiques.
+          </p>
+        </AnimateIn>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex flex-wrap gap-2">
+          <button
             onClick={() => setFilter(null)}
+            className={cn(
+              'rounded-full px-4 py-1 text-sm cursor-pointer border transition-all duration-200',
+              filter === null
+                ? 'bg-primary text-white border-primary'
+                : 'bg-transparent border-ui-border-light dark:border-ui-border text-gray-500 dark:text-text-secondary-dark hover:bg-ui-hover-light dark:hover:bg-ui-hover hover:border-primary'
+            )}
           >
             Tous
-          </FilterButton>
+          </button>
           {allFilterOptions.map(option => (
-            <FilterButton
+            <button
               key={option}
-              $active={filter === option}
               onClick={() => setFilter(option)}
+              className={cn(
+                'rounded-full px-4 py-1 text-sm cursor-pointer border transition-all duration-200',
+                filter === option
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-transparent border-ui-border-light dark:border-ui-border text-gray-500 dark:text-text-secondary-dark hover:bg-ui-hover-light dark:hover:bg-ui-hover hover:border-primary'
+              )}
             >
               {option}
-            </FilterButton>
+            </button>
           ))}
         </div>
-        
+
         <div>
-          <FilterButton
-            $active={showForks}
+          <button
             onClick={() => setShowForks(!showForks)}
+            className={cn(
+              'rounded-full px-4 py-1 text-sm cursor-pointer border transition-all duration-200',
+              showForks
+                ? 'bg-primary text-white border-primary'
+                : 'bg-transparent border-ui-border-light dark:border-ui-border text-gray-500 dark:text-text-secondary-dark hover:bg-ui-hover-light dark:hover:bg-ui-hover hover:border-primary'
+            )}
           >
             {showForks ? 'Masquer les Forks' : 'Afficher les Forks'}
-          </FilterButton>
+          </button>
         </div>
-      </FiltersContainer>
-      
+      </div>
+
+      {/* Projects Grid */}
       {loading ? (
-        <div>
-          <p>Chargement des projets...</p>
-        </div>
+        <p className="text-gray-500 dark:text-text-secondary-dark">Chargement des projets...</p>
       ) : error ? (
         <div>
-          <p>Erreur lors du chargement des projets : {error.message}</p>
-          <p>Utilisation des données de remplacement.</p>
+          <p className="text-error">Erreur lors du chargement des projets : {error.message}</p>
+          <p className="text-gray-500 dark:text-text-secondary-dark">Utilisation des données de remplacement.</p>
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div>
-          <p>Aucun projet ne correspond à vos critères.</p>
-        </div>
+        <p className="text-gray-500 dark:text-text-secondary-dark">Aucun projet ne correspond à vos critères.</p>
       ) : (
-        <ProjectsGrid>
-          {filteredProjects.map(project => (
-            <ProjectCard key={project.id} onClick={() => handleProjectClick(project.name)}>
-              <ProjectImage>
-                <ProjectImageContent repoName={project.name} fallbackImage={project.image} name={project.name} />
-              </ProjectImage>
-              <ProjectContent>
-                <ProjectTitle>{project.name}</ProjectTitle>
-                <ProjectDescription>{project.description}</ProjectDescription>
-                <TechStack>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {filteredProjects.map((project, index) => (
+            <AnimateIn key={project.id} type="fadeUp" delay={Math.min(index * 80, 500)}>
+            <div
+              onClick={() => handleProjectClick(project.name)}
+              className="card cursor-pointer overflow-hidden group"
+            >
+              {/* Project Image */}
+              <div className="h-[180px] flex items-center justify-center text-3xl
+                bg-gray-100 dark:bg-bg-code">
+                <ProjectImageContent
+                  repoName={project.name}
+                  fallbackImage={project.image}
+                  name={project.name}
+                />
+              </div>
+
+              {/* Project Content */}
+              <div className="p-6">
+                <h3 className="text-xl mb-2">{project.name}</h3>
+                <p className="text-base mb-4 text-gray-500 dark:text-text-secondary-dark">
+                  {project.description}
+                </p>
+
+                {/* Tech Tags */}
+                <div className="flex flex-wrap gap-1 mb-4">
                   {project.technologies.map(tech => (
-                    <TechTag key={tech}>{tech}</TechTag>
+                    <span key={tech} className="tech-tag">{tech}</span>
                   ))}
                   {project.language && !project.technologies.includes(project.language) && (
-                    <TechTag key={project.language}>{project.language}</TechTag>
+                    <span key={project.language} className="tech-tag">{project.language}</span>
                   )}
-                </TechStack>
-                <ProjectMeta>
+                </div>
+
+                {/* Meta */}
+                <div className="flex gap-4 mb-4 text-sm text-gray-500 dark:text-text-secondary-dark">
                   <span>⭐ {project.stars}</span>
                   <span>🍴 {project.forks}</span>
                   <span>🕒 {project.updatedAt.toLocaleDateString()}</span>
-                </ProjectMeta>
-                <ProjectLinks>
-                  <ProjectLink href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                </div>
+
+                {/* Links */}
+                <div className="flex gap-4 mt-4">
+                  <a
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="inline-flex items-center gap-1 text-primary font-medium no-underline hover:underline"
+                  >
                     GitHub <span>↗</span>
-                  </ProjectLink>
+                  </a>
                   {project.demoUrl && (
-                    <ProjectLink href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={project.demoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-primary font-medium no-underline hover:underline"
+                    >
                       Démo en Direct <span>↗</span>
-                    </ProjectLink>
+                    </a>
                   )}
-                </ProjectLinks>
-              </ProjectContent>
-            </ProjectCard>
+                </div>
+              </div>
+            </div>
+            </AnimateIn>
           ))}
-        </ProjectsGrid>
+        </div>
       )}
-    </ProjectsContainer>
+    </div>
   );
 };
 

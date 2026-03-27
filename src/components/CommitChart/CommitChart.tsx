@@ -11,19 +11,13 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import styled from 'styled-components';
+import { cn } from '../../utils/cn';
 import { CommitStats } from '../../services/github';
 
 // Register Chart.js components
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
+  CategoryScale, LinearScale, PointElement, LineElement,
+  Title, Tooltip, Legend, Filler
 );
 
 interface CommitChartProps {
@@ -31,23 +25,13 @@ interface CommitChartProps {
   className?: string;
 }
 
-const ChartContainer = styled.div`
-  width: 100%;
-  height: 400px;
-  position: relative;
-`;
-
 const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
   const chartRef = useRef<ChartJS<'line'>>(null);
 
-  // Prepare chart data
   const chartData = {
     labels: data.map(item => {
       const date = new Date(item.date);
-      return date.toLocaleDateString('fr-FR', { 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      return date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
     }),
     datasets: [
       {
@@ -67,14 +51,11 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
     ],
   };
 
-  // Chart options
   const options = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { display: false },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         titleColor: '#ffffff',
@@ -88,10 +69,7 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
             const index = context[0].dataIndex;
             const date = new Date(data[index].date);
             return date.toLocaleDateString('fr-FR', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
             });
           },
           label: (context: any) => {
@@ -103,72 +81,39 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
     },
     scales: {
       x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#6b7280',
-          font: {
-            size: 12,
-          },
-          maxTicksLimit: 10,
-        },
+        grid: { display: false },
+        ticks: { color: '#6b7280', font: { size: 12 }, maxTicksLimit: 10 },
       },
       y: {
         beginAtZero: true,
-        grid: {
-          color: 'rgba(107, 114, 128, 0.1)',
-        },
-        ticks: {
-          color: '#6b7280',
-          font: {
-            size: 12,
-          },
-          stepSize: 1,
-        },
+        grid: { color: 'rgba(107, 114, 128, 0.1)' },
+        ticks: { color: '#6b7280', font: { size: 12 }, stepSize: 1 },
       },
     },
-    interaction: {
-      intersect: false,
-      mode: 'index' as const,
-    },
-    elements: {
-      point: {
-        hoverBackgroundColor: '#3b82f6',
-      },
-    },
+    interaction: { intersect: false, mode: 'index' as const },
+    elements: { point: { hoverBackgroundColor: '#3b82f6' } },
   };
 
-  // Update chart theme based on current theme
   useEffect(() => {
     if (chartRef.current) {
-      const chart = chartRef.current;
-      // You can add theme-based updates here if needed
-      chart.update();
+      chartRef.current.update();
     }
   }, []);
 
   if (data.length === 0) {
     return (
-      <ChartContainer className={className}>
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          height: '100%',
-          color: '#6b7280',
-          fontSize: '14px'
-        }}>
+      <div className={cn('w-full h-[400px] relative', className)}>
+        <div className="flex items-center justify-center h-full text-sm text-gray-500">
           Aucune donnée de commit disponible
         </div>
-      </ChartContainer>
+      </div>
     );
   }
 
   return (
-    <ChartContainer className={className}>
+    <div className={cn('w-full h-[400px] relative', className)}>
       <Line ref={chartRef} data={chartData} options={options} />
-    </ChartContainer>
+    </div>
   );
 };
 

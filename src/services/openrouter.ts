@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // OpenRouter API configuration
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
-const CLAUDE_MODEL = 'mistralai/mistral-small-24b-instruct-2501:free';
+const CLAUDE_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
 
 // Create axios instance for OpenRouter API
 const openRouterApi = axios.create({
@@ -128,9 +128,97 @@ Génère un résumé de 2-3 phrases en français qui soit à la fois professionn
   });
 };
 
+/**
+ * Generate a professional summary from LinkedIn profile data
+ * @param linkedInData - LinkedIn portfolio data including profile, positions, education, and skills
+ */
+export const generateLinkedInSummary = async (linkedInData: {
+  profile: {
+    firstName: string;
+    lastName: string;
+    headline: string;
+    summary?: string;
+  } | null;
+  positions: Array<{
+    companyName: string;
+    title: string;
+    description?: string;
+    isCurrent?: boolean;
+  }>;
+  education: Array<{
+    schoolName: string;
+    degreeName?: string;
+    notes?: string;
+  }>;
+  skills: Array<{ name: string }>;
+}): Promise<string> => {
+  const systemPrompt = `Tu es un rédacteur professionnel expert en création de résumés de carrière captivants et engageants.
+
+Ta mission est de générer un résumé professionnel bref (3-4 phrases) écrit À LA PREMIÈRE PERSONNE (en utilisant "je", "j'ai", "mon", etc.) qui met en avant :
+- L'identité professionnelle et le positionnement actuel de la personne
+- Les expériences clés et réalisations marquantes
+- Les compétences et expertises principales
+- Le parcours éducatif si pertinent
+
+IMPORTANT: Le résumé doit être écrit du point de vue de la personne elle-même, comme si elle se présentait directement.
+
+Adopte un ton professionnel mais dynamique, mettant en valeur les forces et l'unicité du profil. Rends ce résumé mémorable et impactant !`;
+
+  // Extract key information
+  const fullName = linkedInData.profile
+    ? `${linkedInData.profile.firstName} ${linkedInData.profile.lastName}`
+    : 'Professionnel';
+  const headline = linkedInData.profile?.headline || 'Professionnel expérimenté';
+  const existingSummary = linkedInData.profile?.summary || '';
+  
+  // Get top 3 positions
+  const topPositions = linkedInData.positions.slice(0, 3);
+  const positionsText = topPositions.map(p =>
+    `- ${p.title} chez ${p.companyName}${p.description ? `: ${p.description.slice(0, 150)}...` : ''}`
+  ).join('\n');
+  
+  // Get education
+  const educationText = linkedInData.education.slice(0, 2).map(e =>
+    `- ${e.degreeName || 'Formation'} à ${e.schoolName}`
+  ).join('\n');
+  
+  // Get top skills (first 10)
+  const topSkills = linkedInData.skills.slice(0, 10).map(s => s.name).join(', ');
+
+  const userPrompt = `Crée un résumé professionnel captivant À LA PREMIÈRE PERSONNE pour ce profil LinkedIn :
+
+**Nom:** ${fullName}
+**Titre actuel:** ${headline}
+
+${existingSummary ? `**Résumé existant:** ${existingSummary.slice(0, 500)}...\n` : ''}
+
+**Expériences principales:**
+${positionsText || 'Aucune expérience listée'}
+
+**Formation:**
+${educationText || 'Aucune formation listée'}
+
+**Compétences clés:** ${topSkills || 'Aucune compétence listée'}
+
+Génère un résumé de 3-4 phrases en français, écrit à la première personne (je/j'/mon/ma), qui soit professionnel, engageant et qui capture l'essence de ce profil. La personne doit se présenter elle-même directement.
+
+Exemple de style attendu: "Je suis [titre] avec X années d'expérience en [domaine]. J'ai travaillé chez [entreprises] où j'ai [réalisations]. Ma passion est [passion/expertise], et je maîtrise [compétences clés]."`;
+
+  const messages: OpenRouterMessage[] = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt }
+  ];
+
+  return await generateCompletion(messages, {
+    maxTokens: 300,
+    temperature: 0.7
+  });
+};
+
 const openrouterService = {
   generateCompletion,
   generateProjectSummary,
+  generateLinkedInSummary,
 };
 
 export default openrouterService;

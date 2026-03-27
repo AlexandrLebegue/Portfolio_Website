@@ -91,6 +91,42 @@ const githubApi = axios.create({
   },
 });
 
+// Add response interceptor: if a request fails with 401 (invalid/expired token),
+// permanently remove the token from the instance defaults and retry without auth.
+githubApi.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Only retry once, and only on 401 errors when we had an Authorization header
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retryWithoutAuth
+    ) {
+      console.warn('GitHub API token is invalid or expired. Retrying without authentication (public API, lower rate limit).');
+
+      // Remove the Authorization header from instance defaults so all future requests skip it too
+      delete githubApi.defaults.headers.common['Authorization'];
+      delete githubApi.defaults.headers['Authorization'];
+
+      // Mark this request so we don't retry infinitely
+      originalRequest._retryWithoutAuth = true;
+      delete originalRequest.headers['Authorization'];
+
+      // Retry with a fresh request using the global axios (bypasses instance default headers entirely)
+      return axios.request({
+        ...originalRequest,
+        headers: {
+          ...originalRequest.headers,
+          Authorization: undefined,
+        },
+      });
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Fetch user information from GitHub
  */
