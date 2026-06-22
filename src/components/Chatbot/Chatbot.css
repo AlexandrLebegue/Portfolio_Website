@@ -1,0 +1,323 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Chatbot — MONOCHROME / CARRÉ (cohérent avec le thème : encre / papier).
+   Couleurs via les variables de thème (rgb(var(--ink)) ...), inversion auto
+   en thème sombre. Aucun arrondi. prefers-reduced-motion respecté.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.chatbot-root {
+  --cb-fg: rgb(var(--ink));
+  --cb-bg: rgb(var(--base));
+  --cb-line: rgb(var(--line));
+  --cb-muted: rgb(var(--muted));
+  --cb-surface: rgb(var(--surface));
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1000;
+}
+
+/* ── FAB ─────────────────────────────────────────────────────────────────── */
+.chatbot-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  color: var(--cb-bg);
+  background: var(--cb-fg);
+  border: 1px solid var(--cb-fg);
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.chatbot-fab:hover {
+  background: var(--cb-bg);
+  color: var(--cb-fg);
+}
+.chatbot-fab:focus-visible {
+  outline: 2px solid var(--cb-fg);
+  outline-offset: 3px;
+}
+.chatbot-fab svg { width: 26px; height: 26px; }
+
+/* ── Panneau ─────────────────────────────────────────────────────────────── */
+.chatbot-panel {
+  position: absolute;
+  right: 0;
+  bottom: 64px;
+  width: min(370px, calc(100vw - 2rem));
+  max-height: min(560px, calc(100vh - 7rem));
+  display: flex;
+  flex-direction: column;
+  background: var(--cb-bg);
+  color: var(--cb-fg);
+  border: 1px solid var(--cb-fg);
+  overflow: hidden;
+  animation: cb-open 0.18s ease;
+}
+.chatbot-panel.cb-max {
+  width: min(820px, 94vw);
+  height: min(86vh, 900px);
+  max-height: min(86vh, 900px);
+}
+
+.chatbot-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--cb-line);
+}
+.chatbot-header .cb-title { font-weight: 700; font-size: 0.9rem; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--font-heading, inherit); }
+.chatbot-header .cb-subtitle { font-size: 0.72rem; margin-top: 3px; }
+.chatbot-header .cb-badge {
+  display: inline-block;
+  margin-top: 7px;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border: 1px solid var(--cb-line);
+  color: var(--cb-muted);
+}
+.cb-head-actions { margin-left: auto; flex: none; display: inline-flex; align-items: center; gap: 6px; }
+.chatbot-iconbtn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--cb-line);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.chatbot-iconbtn:hover { background: var(--cb-fg); color: var(--cb-bg); border-color: var(--cb-fg); }
+.chatbot-iconbtn:focus-visible { outline: 2px solid var(--cb-fg); outline-offset: 2px; }
+
+/* ── Messages ────────────────────────────────────────────────────────────── */
+.chatbot-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.cb-row { display: flex; }
+.cb-row.cb-user { justify-content: flex-end; }
+.cb-row.cb-assistant { justify-content: flex-start; }
+.cb-bubble {
+  max-width: 86%;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-line;
+  border: 1px solid var(--cb-line);
+  animation: cb-reveal 0.2s ease both;
+}
+.cb-row.cb-assistant .cb-bubble { background: var(--cb-surface); }
+.cb-row.cb-user .cb-bubble { background: var(--cb-fg); color: var(--cb-bg); border-color: var(--cb-fg); }
+.chatbot-panel.cb-max .cb-bubble { max-width: 70%; font-size: 0.92rem; }
+
+/* ── Markdown des réponses de l'assistant (cf. MarkdownMessage.tsx) ───────────
+   Espacements resserrés (contexte « bulle »), thème monochrome/carré via les
+   variables. On annule le `white-space: pre-line` de la bulle pour laisser le
+   markdown gérer les sauts de ligne. */
+.cb-markdown { white-space: normal; font-size: inherit; line-height: 1.5; overflow-wrap: anywhere; }
+.cb-markdown > *:first-child { margin-top: 0; }
+.cb-markdown > *:last-child { margin-bottom: 0; }
+.cb-markdown p { margin: 0 0 0.5em; }
+.cb-markdown strong { font-weight: 700; }
+.cb-markdown em { font-style: italic; }
+.cb-markdown a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.cb-markdown a:hover { text-decoration-thickness: 2px; }
+
+/* Titres : modestes (on est dans une bulle), pas de gros écarts. */
+.cb-markdown h1, .cb-markdown h2, .cb-markdown h3,
+.cb-markdown h4, .cb-markdown h5, .cb-markdown h6 {
+  font-family: var(--font-heading, inherit);
+  font-weight: 700;
+  font-size: 1em;
+  line-height: 1.25;
+  margin: 0.6em 0 0.3em;
+  text-transform: none;
+}
+.cb-markdown h1 { font-size: 1.12em; }
+.cb-markdown h2 { font-size: 1.06em; }
+
+/* Listes. On RÉTABLIT les puces/numéros : Tailwind Preflight (@tailwind base)
+   met `list-style: none` sur ul/ol globalement, ce qui les ferait disparaître. */
+.cb-markdown ul, .cb-markdown ol { margin: 0.3em 0 0.5em; padding-left: 1.3em; }
+.cb-markdown ul { list-style: disc; }
+.cb-markdown ol { list-style: decimal; }
+.cb-markdown ul ul { list-style: circle; }
+.cb-markdown li { margin: 0.15em 0; }
+.cb-markdown li > p { margin: 0; }
+.cb-markdown ul ul, .cb-markdown ol ol,
+.cb-markdown ul ol, .cb-markdown ol ul { margin: 0.2em 0; }
+
+/* Code inline + bloc (inversion ink/papier pour le bloc). */
+.cb-markdown code {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.86em;
+  background: var(--cb-bg);
+  border: 1px solid var(--cb-line);
+  padding: 0.05em 0.3em;
+  overflow-wrap: anywhere;
+}
+.cb-markdown pre {
+  margin: 0.4em 0;
+  padding: 0.6em 0.7em;
+  background: var(--cb-fg);
+  color: var(--cb-bg);
+  overflow-x: auto;
+  white-space: pre;
+}
+.cb-markdown pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.86em;
+}
+
+/* Citations, séparateurs, tableaux (remark-gfm). */
+.cb-markdown blockquote {
+  margin: 0.4em 0;
+  padding-left: 0.6em;
+  border-left: 2px solid var(--cb-line);
+  color: var(--cb-muted);
+}
+.cb-markdown hr { border: none; border-top: 1px solid var(--cb-line); margin: 0.6em 0; }
+/* Tableau (remark-gfm) : scrollable horizontalement pour ne pas déborder de la
+   bulle étroite (display:block active overflow-x). */
+.cb-markdown table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: 0.4em 0; font-size: 0.92em; }
+.cb-markdown th, .cb-markdown td { border: 1px solid var(--cb-line); padding: 0.25em 0.5em; text-align: left; }
+.cb-markdown th { font-weight: 700; }
+
+/* Liens / actions sous une bulle */
+.cb-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+.cb-action {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--cb-line);
+  background: transparent;
+  color: var(--cb-fg);
+  cursor: pointer;
+  font-family: var(--font-mono, monospace);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.cb-action.cb-action-primary { background: var(--cb-fg); color: var(--cb-bg); border-color: var(--cb-fg); }
+.cb-action:hover { background: var(--cb-fg); color: var(--cb-bg); border-color: var(--cb-fg); }
+.cb-action:focus-visible { outline: 2px solid var(--cb-fg); outline-offset: 2px; }
+
+/* Chips */
+.cb-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.6rem; }
+.cb-chip {
+  font-size: 0.74rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--cb-line);
+  background: var(--cb-bg);
+  color: inherit;
+  cursor: pointer;
+  animation: cb-reveal 0.2s ease both;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.cb-chip:hover { border-color: var(--cb-fg); background: var(--cb-fg); color: var(--cb-bg); }
+.cb-chip:focus-visible { outline: 2px solid var(--cb-fg); outline-offset: 2px; }
+
+/* Typing */
+.cb-typing { display: inline-flex; gap: 4px; align-items: center; }
+.cb-typing span { width: 6px; height: 6px; background: currentColor; opacity: 0.5; animation: cb-typing 1s infinite ease-in-out; }
+.cb-typing span:nth-child(2) { animation-delay: 0.15s; }
+.cb-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.chatbot-footer { border-top: 1px solid var(--cb-line); padding: 0.7rem 0.75rem 0.75rem; }
+.chatbot-inputrow { display: flex; gap: 0.5rem; align-items: center; }
+.chatbot-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--cb-line);
+  background: var(--cb-bg);
+  color: inherit;
+}
+.chatbot-input:focus { outline: none; border-color: var(--cb-fg); }
+.chatbot-send {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--cb-fg);
+  cursor: pointer;
+  color: var(--cb-bg);
+  background: var(--cb-fg);
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.chatbot-send:hover { background: var(--cb-bg); color: var(--cb-fg); }
+.chatbot-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.chatbot-send:focus-visible { outline: 2px solid var(--cb-fg); outline-offset: 2px; }
+.chatbot-disclaimer { margin-top: 0.5rem; font-size: 0.65rem; line-height: 1.3; color: var(--cb-muted); }
+.chatbot-reset { background: none; border: none; padding: 0; color: var(--cb-fg); font-size: 0.72rem; cursor: pointer; text-decoration: underline; }
+.chatbot-reset:focus-visible { outline: 2px solid var(--cb-fg); outline-offset: 2px; }
+.cb-muted { color: var(--cb-muted); }
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes cb-open { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cb-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cb-typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-3px); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .chatbot-fab, .chatbot-fab:hover, .chatbot-send:hover { transition: none; }
+  .chatbot-panel, .cb-bubble, .cb-chip { animation: none; }
+  .cb-typing span { animation: none; }
+}
+
+/* ── Mobile : plein écran + polices agrandies ────────────────────────────────
+   En dessous de 640px, le panneau occupe tout l'écran (largeur ET hauteur) et
+   les textes sont plus gros pour le confort de lecture/saisie au doigt. */
+@media (max-width: 640px) {
+  /* Le panneau remplit tout le viewport (même en état « agrandi »). */
+  .chatbot-panel,
+  .chatbot-panel.cb-max {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    border: none;
+  }
+
+  /* Le FAB (et son X) gênerait l'input en plein écran : on le masque quand le
+     panneau est ouvert (l'en-tête a déjà un bouton fermer). */
+  .chatbot-root:has(.chatbot-panel) .chatbot-fab { display: none; }
+
+  /* Le bouton « agrandir » est inutile en plein écran : on le masque. */
+  .cb-head-actions .chatbot-iconbtn:first-child { display: none; }
+
+  /* En-tête plus lisible. */
+  .chatbot-header { padding: 1rem 1.1rem; }
+  .chatbot-header .cb-title { font-size: 1.05rem; }
+  .chatbot-header .cb-subtitle { font-size: 0.85rem; }
+  .chatbot-iconbtn { width: 38px; height: 38px; }
+
+  /* Bulles de message agrandies (y compris en mode max). */
+  .cb-bubble,
+  .chatbot-panel.cb-max .cb-bubble {
+    max-width: 90%;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    padding: 0.7rem 0.85rem;
+  }
+
+  /* Actions / suggestions plus grandes (cibles tactiles). */
+  .cb-action { font-size: 0.82rem; padding: 0.5rem 0.8rem; }
+  .cb-chip { font-size: 0.92rem; padding: 0.55rem 0.85rem; }
+
+  /* Champ de saisie + bouton envoyer agrandis. */
+  .chatbot-input { font-size: 1.05rem; padding: 0.75rem 0.85rem; }
+  .chatbot-send { width: 48px; height: 48px; }
+  .chatbot-disclaimer { font-size: 0.78rem; }
+}

@@ -1,208 +1,149 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink } from 'react-router-dom';
+import gsap from 'gsap';
 import { cn } from '../../../utils/cn';
+import { useLang } from '../../../i18n';
 
-const navItems = [
-  { path: '/', label: 'Accueil' },
-  { path: '/projects', label: 'Projets' },
-  { path: '/about', label: 'À propos' },
-  { path: '/contact', label: 'Contact' },
-];
+// Libellés bilingues de la navigation (FR / EN).
+const NAV_LABELS = {
+  fr: { home: 'Accueil', services: 'Services', projects: 'Projets', about: 'À propos', contact: 'Contact' },
+  en: { home: 'Home', services: 'Services', projects: 'Projects', about: 'About', contact: 'Contact' },
+};
 
-const HamburgerIcon: React.FC<{ isOpen: boolean }> = ({ isOpen }) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    {/* Top bar */}
-    <line
-      x1="3" y1="6" x2="21" y2="6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="transition-all duration-300 origin-center"
-      style={{
-        transform: isOpen ? 'translateY(6px) rotate(45deg)' : 'none',
-        transformBox: 'fill-box',
-        transformOrigin: 'center',
-      }}
-    />
-    {/* Middle bar */}
-    <line
-      x1="3" y1="12" x2="21" y2="12"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="transition-all duration-300"
-      style={{
-        opacity: isOpen ? 0 : 1,
-        transform: isOpen ? 'translateX(8px)' : 'none',
-      }}
-    />
-    {/* Bottom bar */}
-    <line
-      x1="3" y1="18" x2="21" y2="18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      className="transition-all duration-300 origin-center"
-      style={{
-        transform: isOpen ? 'translateY(-6px) rotate(-45deg)' : 'none',
-        transformBox: 'fill-box',
-        transformOrigin: 'center',
-      }}
-    />
-  </svg>
-);
+const prefersReduced = () =>
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const Navigation: React.FC = () => {
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { t } = useLang();
+  const labels = t(NAV_LABELS);
 
-  const toggleMobileNav = () => setIsMobileNavOpen((prev) => !prev);
-  const closeMobileNav = () => setIsMobileNavOpen(false);
+  const navItems = [
+    { path: '/', label: labels.home },
+    { path: '/services', label: labels.services },
+    { path: '/projects', label: labels.projects },
+    { path: '/about', label: labels.about },
+    { path: '/contact', label: labels.contact },
+  ];
 
-  // Lock body scroll when menu is open
+  const desktopRef = useRef<HTMLElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
+
+  // Desktop : les cases encadrées apparaissent une à une (trait gauche→droite).
   useEffect(() => {
-    if (isMobileNavOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
+    if (prefersReduced()) return;
+    const cells = desktopRef.current?.querySelectorAll('.nav-cell');
+    if (cells && cells.length) {
+      // One-shot : chaque case encadrée se trace (gauche→droite) une fois, au montage.
+      // IMPORTANT : fin explicite inset(0 0 0 0) — `gsap.from` vers `clip-path:none`
+      // n'est PAS interpolable (les cases resteraient clippées/invisibles).
+      gsap.fromTo(
+        cells,
+        { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+        { clipPath: 'inset(0 0 0 0)', opacity: 1, duration: 0.5, ease: 'power2.out', stagger: 0.08, delay: 0.35 },
+      );
+    }
+  }, []);
+
+  // Mobile : verrou de scroll + révélation des lignes à l'ouverture.
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    if (open && !prefersReduced() && mobileRef.current) {
+      const rows = mobileRef.current.querySelectorAll('.m-row');
+      // One-shot : les lignes du menu se tracent à l'ouverture.
+      gsap.fromTo(
+        rows,
+        { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+        { clipPath: 'inset(0 0% 0 0)', opacity: 1, duration: 0.5, ease: 'power3.out', stagger: 0.08, delay: 0.08 },
+      );
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isMobileNavOpen]);
+  }, [open]);
 
   return (
     <>
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center">
-        <ul className="flex gap-6 list-none m-0 p-0">
-          {navItems.map((item) => (
-            <li key={item.path} className="relative">
+      {/* ── Desktop : segments encadrés ── */}
+      <nav ref={desktopRef} className="hidden md:flex" aria-label="Navigation principale">
+        {navItems.map((item, i) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            end={item.path === '/'}
+            className={({ isActive }) =>
+              cn(
+                'nav-cell border border-line px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.12em] no-underline transition-colors duration-200',
+                i > 0 && '-ml-px',
+                isActive ? 'border-ink bg-ink text-inverse' : 'text-ink hover:border-ink hover:bg-ink hover:text-inverse',
+              )
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* ── Mobile : déclencheur (plus de hamburger) ── */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Ouvrir le menu"
+        aria-expanded={open}
+        className="flex h-9 items-center border border-line px-3 font-mono text-[0.7rem] uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:bg-ink hover:text-inverse md:hidden"
+      >
+        Menu
+      </button>
+
+      {/* ── Mobile : plein écran OPAQUE (style chatbot). Rendu via PORTAL sur
+          document.body pour échapper au transform du header (sinon le menu se
+          dimensionne au header au lieu du viewport). ── */}
+      {open && createPortal(
+        <div
+          ref={mobileRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu de navigation"
+          className="fixed inset-0 z-modal flex h-[100dvh] w-screen flex-col bg-paper"
+        >
+          <div className="flex items-center justify-between border-b border-line px-5 py-4 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted">
+            <span>Navigation</span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Fermer le menu"
+              className="flex h-9 w-9 items-center justify-center border border-line text-ink transition-colors duration-200 hover:bg-ink hover:text-inverse"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+
+          <nav className="flex flex-1 flex-col" aria-label="Navigation mobile">
+            {navItems.map((item) => (
               <NavLink
+                key={item.path}
                 to={item.path}
                 end={item.path === '/'}
+                onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   cn(
-                    'no-underline text-base font-medium px-2 py-1 rounded-md',
-                    'transition-all duration-200',
-                    'text-gray-500 dark:text-text-secondary-dark',
-                    'hover:text-text-dark hover:bg-ui-hover-light',
-                    'dark:hover:text-text-primary-dark dark:hover:bg-ui-hover',
-                    isActive && [
-                      'text-primary dark:text-primary font-semibold',
-                      'after:content-[""] after:absolute after:-bottom-1 after:left-0',
-                      'after:w-full after:h-0.5 after:bg-primary after:rounded-full',
-                    ]
+                    'm-row flex items-center justify-between border-b border-line px-5 py-6 font-heading text-2xl font-semibold uppercase tracking-tight no-underline transition-colors duration-200',
+                    isActive ? 'bg-ink text-inverse' : 'text-ink hover:bg-surface',
                   )
                 }
               >
                 {item.label}
+                <span aria-hidden="true" className="font-mono text-base text-muted">↗</span>
               </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Hamburger Button (mobile only) */}
-      <button
-        onClick={toggleMobileNav}
-        aria-label={isMobileNavOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-        aria-expanded={isMobileNavOpen}
-        aria-controls="mobile-nav-panel"
-        className={cn(
-          'flex md:hidden items-center justify-center',
-          'w-10 h-10 rounded-md border transition-all duration-200',
-          'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-          isMobileNavOpen
-            ? 'text-primary bg-ui-hover-light dark:bg-ui-hover border-primary'
-            : 'text-text-dark dark:text-text-primary-dark bg-transparent border-ui-border-light dark:border-ui-border',
-          'hover:text-primary hover:bg-ui-hover-light dark:hover:bg-ui-hover hover:border-primary'
-        )}
-      >
-        <HamburgerIcon isOpen={isMobileNavOpen} />
-      </button>
-
-      {/* Backdrop */}
-      <div
-        className={cn(
-          'fixed inset-0 z-modal transition-all duration-300 md:hidden',
-          isMobileNavOpen
-            ? 'opacity-100 pointer-events-auto bg-black/60 backdrop-blur-sm'
-            : 'opacity-0 pointer-events-none'
-        )}
-        onClick={closeMobileNav}
-        aria-hidden="true"
-      />
-
-      {/* Mobile Nav Panel */}
-      <div
-        id="mobile-nav-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Menu de navigation"
-        className={cn(
-          'fixed top-0 right-0 h-full w-4/5 max-w-[300px] z-[1301] md:hidden',
-          'flex flex-col shadow-2xl border-l transition-transform duration-300 ease-in-out',
-          'bg-bg-light border-ui-border-light',
-          'dark:bg-bg-dark dark:border-ui-border',
-          isMobileNavOpen ? 'translate-x-0' : 'translate-x-full'
-        )}
-      >
-        {/* Panel header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-ui-border-light dark:border-ui-border">
-          <span className="text-base font-semibold text-text-dark dark:text-text-primary-dark tracking-wide">
-            Navigation
-          </span>
-          <button
-            onClick={closeMobileNav}
-            aria-label="Fermer le menu"
-            className={cn(
-              'flex items-center justify-center w-8 h-8 rounded-md',
-              'text-text-dark dark:text-text-primary-dark',
-              'hover:text-primary hover:bg-ui-hover-light dark:hover:bg-ui-hover',
-              'transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary'
-            )}
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <line x1="1" y1="1" x2="17" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              <line x1="17" y1="1" x2="1" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Nav links */}
-        <nav className="flex-1 overflow-y-auto py-4 px-4">
-          <ul className="list-none m-0 p-0 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  end={item.path === '/'}
-                  onClick={closeMobileNav}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center w-full px-4 py-3 rounded-lg',
-                      'text-base font-medium no-underline',
-                      'transition-all duration-200',
-                      isActive
-                        ? 'text-primary bg-ui-hover-light dark:bg-ui-hover font-semibold border-l-2 border-primary pl-3'
-                        : 'text-text-dark dark:text-text-primary-dark hover:text-primary hover:bg-ui-hover-light dark:hover:bg-ui-hover'
-                    )
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              </li>
             ))}
-          </ul>
-        </nav>
-      </div>
+          </nav>
+        </div>,
+        document.body,
+      )}
     </>
   );
 };

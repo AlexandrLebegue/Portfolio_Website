@@ -1,131 +1,212 @@
-import React from 'react';
-import AnimateIn from '../../components/AnimateIn/AnimateIn';
+import React, { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ABOUT_COPY } from '../../content/about';
+import { useLang } from '../../i18n';
+
+gsap.registerPlugin(ScrollTrigger);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// src/pages/About/About.tsx
+//
+// « A propos » au MEME format « plan technique » que la home et les realisations :
+// un SEUL cadre monochrome qui se trace au scroll (rails lateraux + lignes
+// horizontales), sections ATTACHEES (aucun gap), libelles mono, grilles connectees.
+// Plus d'arrondi, plus de degrade « propulsion », plus d'anneau d'orbite.
+//
+// Contenu 100% issu de ABOUT_COPY (bilingue FR/EN) via useLang().t.
+// ─────────────────────────────────────────────────────────────────────────────
 
 const About: React.FC = () => {
+  const { t, lang } = useLang();
+  const copy = t(ABOUT_COPY);
+
+  // ── Lignes de structure : chaque [data-draw] se TRACE au scroll (scaleX/Y 0→1).
+  //    Meme effet que la home / la grille projets. Rejoue sur changement de langue.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-draw]').forEach((el) => {
+        const axis = el.dataset.draw;
+        const prop = axis === 'y' ? 'scaleY' : 'scaleX';
+        gsap.fromTo(
+          el,
+          { [prop]: 0 },
+          {
+            [prop]: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 95%',
+              end: axis === 'y' ? 'top 45%' : 'top 70%',
+              scrub: 1,
+            },
+          },
+        );
+      });
+    }, root);
+
+    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 200);
+    return () => {
+      window.clearTimeout(refreshId);
+      ctx.revert();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
   return (
-    <div className="flex flex-col gap-8">
-      {/* Page Header */}
-      <div className="mb-8">
-        <AnimateIn type="fadeDown" delay={0}>
-          <h1 className="text-4xl mb-4">À Propos de Moi</h1>
-        </AnimateIn>
-        <AnimateIn type="fadeUp" delay={100}>
-          <p className="text-lg max-w-[800px] text-gray-500 dark:text-text-secondary-dark">
-            Ingénieur logiciel embarqué mais surtout développeur passionné en technologies IA
-          </p>
-        </AnimateIn>
-      </div>
+    // Tout est ENCADRE comme la home : fullbleed pour coller a la largeur des cadres.
+    <div className="fullbleed py-8 md:py-12">
+      <div className="container-page">
+        <div ref={rootRef} className="relative">
+          {/* Lueur de trajectoire tres discrete (clair, jamais sombre) */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60vh] bg-gradient-trajectory"
+          />
 
-      {/* Profile Section */}
-      <section className="mb-10">
-        <div className="flex flex-col md:flex-row gap-8 mb-8">
-          <div className="flex-[2]">
-            <AnimateIn type="fadeRight" delay={0}>
-              <h2 className="section-title">Mon Parcours</h2>
-            </AnimateIn>
-            <AnimateIn type="fadeUp" delay={100}>
-              <p className="mb-4 leading-relaxed text-text-dark dark:text-text-primary-dark">
-                Je suis Alexandre Lebegue, un ingénieur logiciel embarqué animé par une passion profonde pour le développement de technologies
-                de pointe qui repoussent les limites du possible. Mon parcours a été guidé par une fascination pour l'exploration spatiale
-                et les innovations technologiques. Cette passion m'a conduit à poursuivre des études en ingénierie logicielle, où j'ai découvert
-                la joie de créer et de partager mes connaissances avec les autres. Chaque projet est pour moi une opportunité de contribuer
-                à un l'avenir et de laisser une marque dans le monde.
-              </p>
-            </AnimateIn>
-            <AnimateIn type="fadeUp" delay={200}>
-              <p className="mb-4 leading-relaxed text-text-dark dark:text-text-primary-dark">
-                Tout au long de ma carrière, j'ai eu l'opportunité de combiner mes compétences techniques avec ma créativité sur divers projets.
-                En commençant par le développement d'un simulateur de voûte céleste, j'ai découvert la puissance du C++ (et la joie des fuites mémoires ...). Ma contribution à la création de viseurs d'étoiles
-                m'a enseigné le développement dans des environnements contraints en C.
-                Participer au lancement de l'usine logicielle pour l'intégration continue m'a offert une vue d'ensemble sur le cycle de développement.
-                Actuellement, je travaille sur l'utilisation des LLMs pour l'aide au développement, afin de continuer à développer mes compétences.
-              </p>
-            </AnimateIn>
-            <AnimateIn type="fadeUp" delay={300}>
-              <p className="mb-4 leading-relaxed text-text-dark dark:text-text-primary-dark">
-                Je crois que l'intersection entre l'ingénierie aérospatiale et le développement logiciel
-                offre d'énormes opportunités d'innovation. Qu'il s'agisse de développer des outils de simulation
-                pour la dynamique spatiale, de créer des systèmes de contrôle, ou
-                de construire des plateformes de visualisation de données complexes,
-                je suis toujours enthousiaste à l'idée de relever de nouveaux défis.
-              </p>
-            </AnimateIn>
+          <span className="vrail vrail-l" data-draw="y" />
+          <span className="vrail vrail-r" data-draw="y" />
+
+          {/* ── Bandeau de tete (kicker + signature), comme le hero home ── */}
+          <div className="hline" data-draw="x" />
+          <div className="flex items-center justify-between gap-4 px-5 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+            <span>{copy.kicker}</span>
+            <span className="hidden sm:inline">Alexandre Lebegue — 2026</span>
           </div>
+          <div className="hline" data-draw="x" />
 
-          <AnimateIn type="fadeLeft" delay={200} className="flex-1 flex justify-center items-start md:order-none -order-1 md:mb-0 mb-6">
-            <div className="w-[300px] h-[300px] rounded-full overflow-hidden
-              border-[3px] border-primary flex items-center justify-center text-4xl
-              bg-gray-100 dark:bg-bg-code">
-              <img
-                src={require('../../assets/images/me.JPG')}
-                alt="Alexandre Lebegue"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </AnimateIn>
-        </div>
-      </section>
+          {/* ── Hero editorial : titre XXL + lead ── */}
+          <div className="px-6 py-14 md:px-10 md:py-20">
+            <h1 className="max-w-4xl font-heading text-4xl font-bold uppercase leading-[1.04] tracking-tight md:text-6xl">
+              <span className="gradient-text">{copy.title}</span>
+            </h1>
+            <div className="hline mt-8 max-w-sm" data-draw="x" />
+            <p className="mt-8 max-w-3xl text-lg leading-relaxed text-muted dark:text-text-secondary-dark md:text-xl">
+              {copy.lead}
+            </p>
+          </div>
+          <div className="hline" data-draw="x" />
 
-      {/* Skills Section */}
-      <section className="mb-10">
-        <AnimateIn type="fadeRight">
-          <h2 className="section-title">Compétences & Expertise</h2>
-        </AnimateIn>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              title: 'Développement Logiciel',
-              skills: ['Python', 'C/C++ 11', 'Cmake / GCC / MSVC'],
-            },
-            {
-              title: 'Intelligence Artificielle',
-              skills: ["Développement d'agents avec outils", 'Apprentissage Automatique', 'Apprentissage par renforcement', 'Visualisation de Données'],
-            },
-            {
-              title: 'Outils & Technologies',
-              skills: ['Git & SVN', 'Github & Tuleap', 'Jenkins & Github Workflow', 'Docker', 'Pipelines CI/CD', 'Google Cloud (en cours 🚸)'],
-            },
-          ].map((category, catIndex) => (
-            <AnimateIn key={category.title} type="fadeUp" delay={catIndex * 150}>
-              <div className="card p-6">
-                <h3 className="text-lg mb-4 text-primary">{category.title}</h3>
-                <ul className="list-none p-0 m-0">
-                  {category.skills.map(skill => (
-                    <li key={skill} className="flex items-center mb-2 text-text-dark dark:text-text-primary-dark">
-                      <span className="text-primary mr-2">▹</span> {skill}
-                    </li>
-                  ))}
-                </ul>
+          {/* ── Recit + portrait : 2 colonnes attachees (rail central trace) ── */}
+          <div className="relative grid md:grid-cols-12">
+            <span
+              className="vrail hidden md:block"
+              style={{ left: '58.3333%' }}
+              data-draw="y"
+            />
+
+            {/* Colonne texte (7/12) */}
+            <div className="px-6 py-12 md:col-span-7 md:px-10 md:py-14">
+              <span className="font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+                {'// '}
+                {t({ fr: 'PARCOURS', en: 'TRACK RECORD' })}
+              </span>
+              <div className="mt-6 space-y-6">
+                {copy.paragraphs.map((paragraph, index) => (
+                  <p
+                    key={index}
+                    className="text-lg leading-relaxed text-ink/80 dark:text-text-secondary-dark"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
               </div>
-            </AnimateIn>
-          ))}
-        </div>
-      </section>
+            </div>
 
-      {/* Interests Section */}
-      <section className="mb-10">
-        <AnimateIn type="fadeRight">
-          <h2 className="section-title">Intérêts & Passions</h2>
-        </AnimateIn>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: '🚀', title: 'Exploration Spatiale', description: "Fasciné par les défis et les possibilités de l'exploration au-delà de la Terre" },
-            { icon: '🤖', title: 'Intelligence Artificielle', description: "Explorer le potentiel de l'IA pour résoudre des problèmes et aider au développement" },
-            { icon: '📊', title: 'Visualisation de Données', description: "Créer des moyens intuitifs de comprendre et d'interagir avec des données complexes" },
-            { icon: '🚙', title: 'Exploration terrestre', description: 'Rencontrer de nouvelles personnes, cultures et lieux.' },
-          ].map((interest, index) => (
-            <AnimateIn key={interest.title} type="scale" delay={index * 100}>
-              <div className="flex flex-col items-center text-center">
-                <div className="text-3xl mb-2">{interest.icon}</div>
-                <h3 className="text-base mb-1">{interest.title}</h3>
-                <p className="text-sm text-gray-500 dark:text-text-secondary-dark">
-                  {interest.description}
+            {/* Separateur mobile entre texte et portrait */}
+            <div className="hline md:hidden" data-draw="x" />
+
+            {/* Colonne portrait (5/12) : cadre carre « plan technique » */}
+            <div className="px-6 py-12 md:col-span-5 md:px-10 md:py-14">
+              <div className="relative w-full overflow-hidden border border-line bg-surface">
+                {/* Etiquette + reperes d'angle facon plan */}
+                <span className="absolute left-3 top-3 z-10 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted">
+                  {t({ fr: 'Portrait', en: 'Portrait' })} · A. Lebegue
+                </span>
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-3 top-3 h-2.5 w-2.5 border-r border-t border-line"
+                />
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-3 left-3 h-2.5 w-2.5 border-b border-l border-line"
+                />
+                <img
+                  src={require('../../assets/images/me.JPG')}
+                  alt="Alexandre Lebegue"
+                  className="aspect-[4/5] w-full object-cover grayscale"
+                  loading="lazy"
+                  onLoad={() => ScrollTrigger.refresh()}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="hline" data-draw="x" />
+
+          {/* ── Preuves de confiance : grille connectee 01 / 02 / 03 ── */}
+          <div className="flex items-center justify-between gap-4 px-5 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+            <span>
+              {'// '}
+              {t({ fr: 'PREUVES', en: 'PROOF' })}
+            </span>
+            <span className="hidden sm:inline">
+              {String(copy.proofs.length).padStart(2, '0')}{' '}
+              {t({ fr: 'POINTS', en: 'POINTS' })}
+            </span>
+          </div>
+          <div className="hline" data-draw="x" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3">
+            {copy.proofs.map((proof, index) => (
+              <div key={proof.label} className="group relative flex flex-col p-6 md:p-8">
+                <span className="vrail vrail-l hidden sm:block" data-draw="y" />
+                <div className="hline absolute left-0 top-0" data-draw="x" />
+
+                <span className="font-mono text-xs tracking-[0.14em] text-muted">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-5 font-heading text-lg font-semibold uppercase tracking-tight text-ink dark:text-text-primary-dark">
+                  {proof.label}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted dark:text-text-secondary-dark">
+                  {proof.description}
                 </p>
               </div>
-            </AnimateIn>
-          ))}
+            ))}
+          </div>
+          <div className="hline" data-draw="x" />
+
+          {/* ── Le moteur : ce qui me fait avancer ── */}
+          <div className="px-6 py-14 md:px-10 md:py-20">
+            <span className="font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+              {'// '}
+              {copy.passion.title}
+            </span>
+            <p className="mt-6 max-w-3xl font-heading text-2xl font-semibold leading-snug tracking-tight text-ink dark:text-text-primary-dark md:text-4xl">
+              {copy.passion.text}
+            </p>
+          </div>
+          <div className="hline" data-draw="x" />
+
+          {/* ── Signature de cloture ── */}
+          <div className="px-6 py-12 md:px-10 md:py-16">
+            <p className="max-w-3xl font-heading text-2xl font-medium leading-snug tracking-tight md:text-3xl">
+              <span className="gradient-text">{copy.signature}</span>
+            </p>
+            <p className="mt-5 font-mono text-xs uppercase tracking-[0.18em] text-muted dark:text-text-secondary-dark">
+              Alexandre Lebegue
+            </p>
+          </div>
+
+          {/* Ligne de fermeture du cadre */}
+          <div className="hline" data-draw="x" />
         </div>
-      </section>
+      </div>
     </div>
   );
 };

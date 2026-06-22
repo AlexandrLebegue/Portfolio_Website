@@ -7,8 +7,9 @@ type ThemeContextType = {
 };
 
 // Create context with default values
+// Theme par defaut : CLAIR (light) pour la nouvelle direction visuelle premium.
 const ThemeContext = createContext<ThemeContextType>({
-  isDarkMode: true,
+  isDarkMode: false,
   toggleTheme: () => {},
 });
 
@@ -20,10 +21,11 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  // Initialize theme from localStorage or default to dark mode
+  // Initialize theme from localStorage or default to LIGHT mode.
+  // Si aucune preference n'est enregistree, on demarre en theme clair (isDarkMode = false).
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme ? savedTheme === 'dark' : true;
+    return savedTheme ? savedTheme === 'dark' : false;
   });
 
   // Apply dark class to html element and save preference

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // OpenRouter API configuration
 const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
-const CLAUDE_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
+const CLAUDE_MODEL = 'deepseek/deepseek-v4-flash';
 
 // Create axios instance for OpenRouter API
 const openRouterApi = axios.create({
@@ -75,7 +75,16 @@ export const generateCompletion = async (
 
     return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Error generating completion with OpenRouter:', error);
+    // Log explicite du code HTTP + corps renvoyé par OpenRouter (402 = crédits
+    // insuffisants, 401 = clé invalide, 404 = politique de données, etc.).
+    if (axios.isAxiosError(error)) {
+      console.error(
+        `OpenRouter error ${error.response?.status ?? '(no response)'}:`,
+        error.response?.data ?? error.message,
+      );
+    } else {
+      console.error('Error generating completion with OpenRouter:', error);
+    }
     throw error;
   }
 };

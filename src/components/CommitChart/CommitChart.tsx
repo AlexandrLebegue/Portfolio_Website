@@ -25,8 +25,22 @@ interface CommitChartProps {
   className?: string;
 }
 
+// Lit une variable CSS « canaux RGB » (ex. "12 12 12") et renvoie ses composantes
+// separees par des virgules, pretes pour rgb()/rgba(). Permet de garder le
+// graphique MONOCHROME et synchronise avec le theme clair/sombre.
+const cssChannels = (name: string, fallback: string): string => {
+  if (typeof window === 'undefined') return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return (v || fallback).split(/\s+/).join(', ');
+};
+
 const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
   const chartRef = useRef<ChartJS<'line'>>(null);
+
+  // Palette derivee du theme (encre / papier / texte secondaire).
+  const ink = cssChannels('--ink', '12, 12, 12');
+  const base = cssChannels('--base', '255, 255, 255');
+  const muted = cssChannels('--muted', '92, 92, 92');
 
   const chartData = {
     labels: data.map(item => {
@@ -37,13 +51,13 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
       {
         label: 'Commits',
         data: data.map(item => item.count),
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderColor: `rgb(${ink})`,
+        backgroundColor: `rgba(${ink}, 0.08)`,
         borderWidth: 2,
         fill: true,
         tension: 0.4,
-        pointBackgroundColor: '#3b82f6',
-        pointBorderColor: '#ffffff',
+        pointBackgroundColor: `rgb(${ink})`,
+        pointBorderColor: `rgb(${base})`,
         pointBorderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
@@ -57,12 +71,12 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: '#3b82f6',
+        backgroundColor: `rgb(${ink})`,
+        titleColor: `rgb(${base})`,
+        bodyColor: `rgb(${base})`,
+        borderColor: `rgb(${ink})`,
         borderWidth: 1,
-        cornerRadius: 8,
+        cornerRadius: 0,
         displayColors: false,
         callbacks: {
           title: (context: any) => {
@@ -82,16 +96,16 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#6b7280', font: { size: 12 }, maxTicksLimit: 10 },
+        ticks: { color: `rgb(${muted})`, font: { size: 12 }, maxTicksLimit: 10 },
       },
       y: {
         beginAtZero: true,
-        grid: { color: 'rgba(107, 114, 128, 0.1)' },
-        ticks: { color: '#6b7280', font: { size: 12 }, stepSize: 1 },
+        grid: { color: `rgba(${muted}, 0.18)` },
+        ticks: { color: `rgb(${muted})`, font: { size: 12 }, stepSize: 1 },
       },
     },
     interaction: { intersect: false, mode: 'index' as const },
-    elements: { point: { hoverBackgroundColor: '#3b82f6' } },
+    elements: { point: { hoverBackgroundColor: `rgb(${ink})` } },
   };
 
   useEffect(() => {
@@ -103,7 +117,7 @@ const CommitChart: React.FC<CommitChartProps> = ({ data, className }) => {
   if (data.length === 0) {
     return (
       <div className={cn('w-full h-[400px] relative', className)}>
-        <div className="flex items-center justify-center h-full text-sm text-gray-500">
+        <div className="flex items-center justify-center h-full text-sm text-muted">
           Aucune donnée de commit disponible
         </div>
       </div>

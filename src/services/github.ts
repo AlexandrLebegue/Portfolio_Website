@@ -206,26 +206,21 @@ export const fetchGitHubReposByTopics = async (
 };
 
 /**
- * Fetch featured repositories
- * First tries to get repos with the 'featured' topic,
- * if none are found, returns the 3 most recently updated non-fork repos
+ * Fetch featured repositories.
+ * First tries repos with the 'featured' topic; if none, returns ALL non-fork
+ * repos (the home page picks 6 at random from this pool on each visit).
  */
 export const fetchFeaturedRepos = async (): Promise<GitHubRepo[]> => {
   // First try to get repos with the 'featured' topic
   const featuredRepos = await fetchGitHubReposByTopics(['featured']);
-  
+
   // If we found featured repos, return them
   if (featuredRepos.length > 0) {
     return featuredRepos;
   }
-  
-  // Otherwise, get all non-fork repos
-  const allRepos = await fetchGitHubRepos(true);
-  
-  // Sort by updated_at (most recent first) and take the first 3
-  return allRepos
-    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-    .slice(0, 3);
+
+  // Otherwise, return all non-fork repos (pool pour le tirage aléatoire en home).
+  return fetchGitHubRepos(true);
 };
 
 /**

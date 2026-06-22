@@ -68,11 +68,9 @@ export async function parseLinkedInZip(
 
     // Validate required data
     if (!profile) {
-      throw {
-        type: 'validation',
-        message: 'Profile data is required',
-        details: 'Profile.csv file is missing or invalid',
-      } as ParseError;
+      // On lance une vraie instance d'Error (no-throw-literal) : elle est
+      // rattrapee par le catch ci-dessous qui la re-emballe en ParseError.
+      throw new Error('Profile data is required: Profile.csv file is missing or invalid');
     }
 
     onProgress?.({

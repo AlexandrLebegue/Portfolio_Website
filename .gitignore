@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local env (secrets) — keep .env.example tracked
+/.env
+
+# dev screenshot output (puppeteer shoot.js)
+/scripts/shots*/

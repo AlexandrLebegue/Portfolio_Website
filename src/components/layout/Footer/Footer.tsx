@@ -1,115 +1,153 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLang, type Lang } from '../../../i18n';
+import { Reveal, Parallax } from '../../../animations';
+
+/**
+ * Dictionnaire bilingue inline, resolu via useLang().t.
+ * Chaque entree expose ses variantes { fr, en }.
+ */
+const DICT = {
+  brand: { fr: 'Alexandre Lebegue', en: 'Alexandre Lebegue' },
+  tagline: {
+    fr: 'Studio IA — je fais décoller vos produits et vos solutions IA sur mesure.',
+    en: 'AI Studio — I get your products and tailor-made AI solutions off the ground.',
+  },
+  navTitle: { fr: 'Navigation', en: 'Navigation' },
+  navHome: { fr: 'Accueil', en: 'Home' },
+  navServices: { fr: 'Services', en: 'Services' },
+  navProjects: { fr: 'Projets', en: 'Projects' },
+  navAbout: { fr: 'À propos', en: 'About' },
+  navContact: { fr: 'Contact', en: 'Contact' },
+  contactTitle: { fr: 'Contact', en: 'Contact' },
+  rights: { fr: 'Tous droits réservés.', en: 'All rights reserved.' },
+} satisfies Record<string, Record<Lang, string>>;
+
+/** Liens de navigation interne du footer (avec la nouvelle entree Services). */
+const NAV_LINKS = [
+  { to: '/', key: 'navHome' as const },
+  { to: '/services', key: 'navServices' as const },
+  { to: '/projects', key: 'navProjects' as const },
+  { to: '/about', key: 'navAbout' as const },
+  { to: '/contact', key: 'navContact' as const },
+];
 
 const Footer: React.FC = () => {
+  const { t } = useLang();
   const currentYear = new Date().getFullYear();
 
+  /** Style commun des liens : neutre discret, vire vers l'accent au survol. */
+  const linkClass =
+    'text-muted hover:text-primary transition-colors duration-200 no-underline w-fit';
+
   return (
-    <footer className="border-t py-8 mt-12 transition-colors duration-300
-      bg-bg-light border-ui-border-light
-      dark:bg-bg-dark dark:border-ui-border">
-      <div className="max-w-[1200px] mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 md:text-left text-center">
-        {/* Brand Section */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg mb-4 relative text-text-dark dark:text-text-primary-dark
-            after:content-[''] after:absolute after:-bottom-2 after:left-0
-            after:w-10 after:h-0.5 after:bg-primary after:rounded-full
-            md:after:left-0 max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-            Alexandre Lebegue
-          </h3>
-          <p className="text-text-dark dark:text-text-primary-dark">
-            Ingénieur logiciel passionné de nouvelles technologies
-          </p>
-          <div className="flex gap-4 md:justify-start justify-center">
-            <a
-              href="https://github.com/AlexandrLebegue"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub"
-              className="text-xl transition-colors duration-200
-                text-gray-500 dark:text-text-secondary-dark hover:text-primary"
+    <footer className="border-t border-line bg-paper mt-24">
+      <div className="container-page py-20 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-12">
+          {/* 01 — Marque + tagline */}
+          <Reveal className="relative" delay={0}>
+            <Parallax
+              speed={0.12}
+              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
             >
-              <i>&#xf09b;</i>
-            </a>
-            <a
-              href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="text-xl transition-colors duration-200
-                text-gray-500 dark:text-text-secondary-dark hover:text-primary"
+              01
+            </Parallax>
+            <div className="relative flex flex-col gap-5">
+              <h3 className="font-heading text-3xl md:text-4xl tracking-tight text-ink">
+                {t(DICT.brand)}
+              </h3>
+              <p className="max-w-xs text-muted leading-relaxed">
+                {t(DICT.tagline)}
+              </p>
+              <div className="flex gap-3 pt-2">
+                <a
+                  href="https://github.com/AlexandrLebegue"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="GitHub"
+                  className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-muted transition-colors duration-200 hover:text-primary hover:border-primary"
+                >
+                  <i className="not-italic">&#xf09b;</i>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="grid h-10 w-10 place-items-center rounded-xl border border-line bg-surface text-muted transition-colors duration-200 hover:text-primary hover:border-primary"
+                >
+                  <i className="not-italic">&#xf08c;</i>
+                </a>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* 02 — Navigation */}
+          <Reveal className="relative" delay={0.08}>
+            <Parallax
+              speed={0.12}
+              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
             >
-              <i>&#xf08c;</i>
-            </a>
-          </div>
+              02
+            </Parallax>
+            <div className="relative flex flex-col gap-4">
+              <span className="kicker text-primary">{t(DICT.navTitle)}</span>
+              <nav className="flex flex-col gap-3">
+                {NAV_LINKS.map(({ to, key }) => (
+                  <Link key={to} to={to} className={linkClass}>
+                    {t(DICT[key])}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </Reveal>
+
+          {/* 03 — Contact */}
+          <Reveal className="relative" delay={0.16}>
+            <Parallax
+              speed={0.12}
+              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
+            >
+              03
+            </Parallax>
+            <div className="relative flex flex-col gap-4">
+              <span className="kicker text-primary">{t(DICT.contactTitle)}</span>
+              <a
+                href="mailto:alexandrelebegue12@gmail.com"
+                className={`flex items-center gap-2 ${linkClass}`}
+              >
+                <span aria-hidden="true">&#9993;</span>
+                alexandrelebegue12@gmail.com
+              </a>
+              <a
+                href="https://github.com/AlexandrLebegue"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                GitHub
+              </a>
+              <a
+                href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                LinkedIn
+              </a>
+            </div>
+          </Reveal>
         </div>
 
-        {/* Navigation Section */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg mb-4 relative text-text-dark dark:text-text-primary-dark
-            after:content-[''] after:absolute after:-bottom-2 after:left-0
-            after:w-10 after:h-0.5 after:bg-primary after:rounded-full
-            md:after:left-0 max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-            Navigation
-          </h3>
-          <Link to="/" className="text-gray-500 dark:text-text-secondary-dark hover:text-primary transition-colors duration-200 no-underline">
-            Accueil
-          </Link>
-          <Link to="/projects" className="text-gray-500 dark:text-text-secondary-dark hover:text-primary transition-colors duration-200 no-underline">
-            Projets
-          </Link>
-          <Link to="/about" className="text-gray-500 dark:text-text-secondary-dark hover:text-primary transition-colors duration-200 no-underline">
-            À propos
-          </Link>
-          <Link to="/contact" className="text-gray-500 dark:text-text-secondary-dark hover:text-primary transition-colors duration-200 no-underline">
-            Contact
-          </Link>
+        {/* Copyright */}
+        <div className="mt-20 pt-8 border-t border-line flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted">
+          <span>
+            &copy; {currentYear} {t(DICT.brand)}. {t(DICT.rights)}
+          </span>
+          <span className="font-code text-xs uppercase tracking-wider">
+            <span className="gradient-text">Propulsion</span> · {currentYear}
+          </span>
         </div>
-
-        {/* Contact Section */}
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg mb-4 relative text-text-dark dark:text-text-primary-dark
-            after:content-[''] after:absolute after:-bottom-2 after:left-0
-            after:w-10 after:h-0.5 after:bg-primary after:rounded-full
-            md:after:left-0 max-md:after:left-1/2 max-md:after:-translate-x-1/2">
-            Contact
-          </h3>
-          <a
-            href="mailto:alexandrelebegue12@gmail.com"
-            className="flex items-center gap-2 no-underline transition-colors duration-200
-              text-gray-500 dark:text-text-secondary-dark hover:text-primary
-              md:justify-start justify-center"
-          >
-            <span>&#9993;</span> alexandrelebegue12@gmail.com
-          </a>
-          <a
-            href="https://github.com/AlexandrLebegue"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 no-underline transition-colors duration-200
-              text-gray-500 dark:text-text-secondary-dark hover:text-primary
-              md:justify-start justify-center"
-          >
-            GitHub
-          </a>
-          <a
-            href="https://www.linkedin.com/in/alexandre-lebegue-6a3718151/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 no-underline transition-colors duration-200
-              text-gray-500 dark:text-text-secondary-dark hover:text-primary
-              md:justify-start justify-center"
-          >
-            LinkedIn
-          </a>
-        </div>
-      </div>
-
-      {/* Copyright */}
-      <div className="text-center mt-8 pt-4 border-t text-sm
-        border-ui-border-light dark:border-ui-border
-        text-gray-500 dark:text-text-secondary-dark">
-        &copy; {currentYear} Alexandre Lebegue. Tout droit reservé.
       </div>
     </footer>
   );
