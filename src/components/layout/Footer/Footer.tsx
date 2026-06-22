@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLang, type Lang } from '../../../i18n';
-import { Reveal, Parallax } from '../../../animations';
+import { Reveal } from '../../../animations';
 
 /**
  * Dictionnaire bilingue inline, resolu via useLang().t.
@@ -44,14 +44,8 @@ const Footer: React.FC = () => {
     <footer className="border-t border-line bg-paper mt-24">
       <div className="container-page py-20 md:py-24">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-14 md:gap-12">
-          {/* 01 — Marque + tagline */}
+          {/* Marque + tagline */}
           <Reveal className="relative" delay={0}>
-            <Parallax
-              speed={0.12}
-              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
-            >
-              01
-            </Parallax>
             <div className="relative flex flex-col gap-5">
               <h3 className="font-heading text-3xl md:text-4xl tracking-tight text-ink">
                 {t(DICT.brand)}
@@ -82,14 +76,8 @@ const Footer: React.FC = () => {
             </div>
           </Reveal>
 
-          {/* 02 — Navigation */}
+          {/* Navigation */}
           <Reveal className="relative" delay={0.08}>
-            <Parallax
-              speed={0.12}
-              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
-            >
-              02
-            </Parallax>
             <div className="relative flex flex-col gap-4">
               <span className="kicker text-primary">{t(DICT.navTitle)}</span>
               <nav className="flex flex-col gap-3">
@@ -102,14 +90,8 @@ const Footer: React.FC = () => {
             </div>
           </Reveal>
 
-          {/* 03 — Contact */}
+          {/* Contact */}
           <Reveal className="relative" delay={0.16}>
-            <Parallax
-              speed={0.12}
-              className="pointer-events-none absolute -top-10 -left-2 select-none font-code text-7xl md:text-8xl text-line/70"
-            >
-              03
-            </Parallax>
             <div className="relative flex flex-col gap-4">
               <span className="kicker text-primary">{t(DICT.contactTitle)}</span>
               <a

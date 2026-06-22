@@ -298,7 +298,11 @@ const Home: React.FC = () => {
   const marquee = [...KEYWORDS[lang], ...KEYWORDS[lang]];
 
   return (
-    <div ref={rootRef} className="flex flex-col">
+    // key={lang} : force le remontage complet au changement de langue. Indispensable
+    // car SplitText (effet machine à écrire) remplace les nœuds texte de React par des
+    // <span> ; sans remontage, React met à jour des nœuds détachés et le texte reste
+    // figé dans l'ancienne langue. (La page « À propos » n'a pas ce souci : pas de SplitText.)
+    <div key={lang} ref={rootRef} className="flex flex-col">
       {/* ===== 1. HERO ===== */}
       <section className="fullbleed relative">
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[80vh] bg-gradient-trajectory" />

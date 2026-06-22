@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { useTheme } from '../../../context/ThemeProvider';
 import { LangSwitch } from '../../../i18n';
 import Navigation from '../Navigation/Navigation';
+import Logo from '../../Icons/Logo';
 
 const Header: React.FC = () => {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -44,7 +45,18 @@ const Header: React.FC = () => {
   const stopSpin = () => {
     spinTween.current?.kill();
     spinTween.current = null;
-    if (squareRef.current) gsap.to(squareRef.current, { rotation: '+=120', duration: 0.6, ease: 'power3.out' });
+    const el = squareRef.current;
+    if (!el) return;
+    // Termine le tour EN COURS dans le même sens et revient à la position initiale
+    // (aplomb = multiple de 360°), puis on normalise à 0 pour éviter l'accumulation.
+    const current = Number(gsap.getProperty(el, 'rotation')) || 0;
+    const target = Math.ceil(current / 360) * 360;
+    gsap.to(el, {
+      rotation: target,
+      duration: 0.6,
+      ease: 'power3.out',
+      onComplete: () => gsap.set(el, { rotation: 0 }),
+    });
   };
 
   return (
@@ -63,7 +75,13 @@ const Header: React.FC = () => {
         className="group flex items-center gap-3 text-ink no-underline"
         aria-label="Alexandre Lebegue — accueil"
       >
-        <span ref={squareRef} aria-hidden="true" className="inline-block h-3 w-3 border-2 border-ink" />
+        {/* Logo « AL » : carré = papier (épouse le fond), AL = encre (toujours lisible).
+            => clair : carré blanc + AL noir ; sombre : carré noir + AL blanc.
+            Les couleurs sont gérées DANS le SVG (cf. Logo.tsx) : aucun fond ici,
+            sinon il baverait par les bords du carré quand le logo tourne au survol. */}
+        <span ref={squareRef} aria-hidden="true" className="inline-flex h-7 w-7">
+          <Logo className="h-full w-full" />
+        </span>
         <span className="font-heading text-base font-bold uppercase tracking-tight md:text-lg">
           Alexandre&nbsp;Lebegue
         </span>
