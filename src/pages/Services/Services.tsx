@@ -1,346 +1,200 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLang } from '../../i18n';
-import { Reveal, Parallax } from '../../animations';
-import {
-  SERVICES,
-  buildProjectMailto,
-} from '../../content/services';
-import type {
-  ServiceCopy,
-  ServiceCta,
-  ServiceCaseStudy,
-} from '../../content/types';
+import { SERVICES, buildProjectMailto } from '../../content/services';
+import type { ServiceCopy, ServiceCaseStudy } from '../../content/types';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Page Services — vitrine CLAIRE & spatiale (theme clair par defaut).
-//
-// Esthetique blanche epuree facon sunmetalon.com : enorme whitespace, titres
-// XXL (Space Grotesk), cartes numerotees 01/02/03 avec gros chiffre filigrane
-// mono, accent indigo (#2B2BE0) + cyan (#00C2FF), degrade « propulsion »
-// ponctuel. Identite spatiale SOBRE (propulsion, trajectoire, orbite) — jamais
-// de fond sombre etoile.
-//
-// Contenu : les 3 offres harmonisees de src/content/services.ts, consommees via
-// useLang().t (bilingue FR/EN). L'offre 02 porte une etude de cas KuryLabs et
-// le CTA mailto « en 1 clic » (buildProjectMailto).
-//
-// Animations : <Reveal> en cascade au scroll, <Parallax> doux sur les gros
-// chiffres filigranes. prefers-reduced-motion est gere par la lib d'animation.
+// Page Services — MEME format « plan technique » que la home / les realisations.
+// Un SEUL cadre monochrome qui se trace au scroll (rails + lignes horizontales).
+// Chaque offre = un bloc ATTACHE : en-tete (numero + titre + promesse), grille
+// de livrables connectee, etude de cas optionnelle (offre 02), puis CTA.
+// Plus d'arrondi, plus de degrade « propulsion », plus de gros chiffre filigrane.
+// Contenu 100% issu de src/content/services.ts (bilingue FR/EN) via useLang().t.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/* Micro-copie bilingue propre a la page (en-tete + libelles structurels). */
 const PAGE = {
   fr: {
     kicker: 'SERVICES',
     title: 'Ce que je construis pour vous',
-    titleAccent: 'pour vous',
-    intro:
-      "Trois façons de faire décoller votre projet : des solutions IA qui tournent sur vos données, des produits livrés vite et bien, et vos équipes qui montent en compétence. Pas des démos — des outils réels, mis en production.",
-    deliverablesLabel: 'Ce que vous obtenez',
+    deliverablesLabel: 'CE QUE VOUS OBTENEZ',
     sectionOf: 'Offre',
+    intro:
+      "Trois facons de vous propulser : des solutions IA qui tournent sur vos donnees, des produits livres vite et bien, et la montee en competence de vos equipes. Pas des demos — des outils reels, mis en orbite.",
   },
   en: {
     kicker: 'SERVICES',
     title: 'What I build for you',
-    titleAccent: 'for you',
-    intro:
-      'Three ways to get your project off the ground: AI solutions that run on your data, products shipped fast and clean, and teams leveled up. Not demos — real tools, in production.',
-    deliverablesLabel: 'What you get',
+    deliverablesLabel: 'WHAT YOU GET',
     sectionOf: 'Offer',
+    intro:
+      'Three ways to propel you forward: AI solutions that run on your data, products shipped fast and clean, and teams leveled up. Not demos — real tools, put into orbit.',
   },
 };
 
 const CASE_STUDY_LABELS = {
-  fr: {
-    built: 'Ce qui a ete construit',
-    timeline: 'Timeline',
-    status: 'Statut',
-    live: 'En ligne',
-  },
-  en: {
-    built: 'What was built',
-    timeline: 'Timeline',
-    status: 'Status',
-    live: 'Live',
-  },
+  fr: { built: 'CE QUI A ETE CONSTRUIT', timeline: 'Timeline', status: 'Statut' },
+  en: { built: 'WHAT WAS BUILT', timeline: 'Timeline', status: 'Status' },
 };
 
-/* Helper : "01" -> entier d'index lisible. */
+/* Helper : "1" -> "01". */
 function pad2(n: number): string {
   return String(n).padStart(2, '0');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Bloc CTA d'une offre (commun aux 3 offres). L'offre 02 genere un mailto
-// pre-rempli via buildProjectMailto ; les autres utilisent cta.href.
+// Etude de cas (offre 02) — sous-bloc encadre : tag + client + contexte, les
+// briques « built » en grille connectee, puis une rangee timeline / statut.
 // ─────────────────────────────────────────────────────────────────────────────
-interface OfferCtaProps {
-  cta: ServiceCta;
-  href: string;
+interface CaseStudyBlockProps {
+  caseStudy: ServiceCaseStudy;
+  labels: { built: string; timeline: string; status: string };
 }
 
-function OfferCta({ cta, href }: OfferCtaProps): JSX.Element {
-  return (
-    <div className="mt-10">
-      {cta.kicker && (
-        <p className="font-heading font-semibold text-xl text-ink dark:text-text-primary-dark mb-4">
-          {cta.kicker}
+const CaseStudyBlock: React.FC<CaseStudyBlockProps> = ({ caseStudy, labels }) => (
+  <>
+    <div className="hline" data-draw="x" />
+    <div className="px-6 py-10 md:px-10 md:py-12">
+      <span className="kicker">{caseStudy.tag}</span>
+      <h3 className="mt-4 font-heading text-2xl font-semibold uppercase tracking-tight text-ink dark:text-text-primary-dark md:text-3xl">
+        {caseStudy.client}
+      </h3>
+      <p className="mt-4 max-w-3xl leading-relaxed text-muted dark:text-text-secondary-dark">
+        {caseStudy.context}
+      </p>
+      <p className="mt-8 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+        {'// '}
+        {labels.built}
+      </p>
+    </div>
+    <div className="hline" data-draw="x" />
+
+    {/* Briques « built » en grille connectee */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {caseStudy.built.map((brick, i) => (
+        <div key={brick} className="relative flex flex-col p-6">
+          <span className="vrail vrail-l hidden sm:block" data-draw="y" />
+          <div className="hline absolute left-0 top-0" data-draw="x" />
+          <span className="font-mono text-xs tracking-[0.14em] text-muted">{pad2(i + 1)}</span>
+          <p className="mt-3 leading-relaxed text-ink dark:text-text-primary-dark">{brick}</p>
+        </div>
+      ))}
+    </div>
+    <div className="hline" data-draw="x" />
+
+    {/* Rangee timeline + statut */}
+    <div className="grid grid-cols-1 sm:grid-cols-2">
+      <div className="relative p-6">
+        <span className="vrail vrail-l hidden sm:block" data-draw="y" />
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{labels.timeline}</p>
+        <p className="mt-1 font-heading font-semibold text-ink dark:text-text-primary-dark">
+          {caseStudy.timeline}
+        </p>
+      </div>
+      <div className="relative p-6">
+        <span className="vrail vrail-l hidden sm:block" data-draw="y" />
+        <div className="hline absolute left-0 top-0 sm:hidden" data-draw="x" />
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{labels.status}</p>
+        <p className="mt-1 inline-flex items-center gap-2 font-heading font-semibold text-ink dark:text-text-primary-dark">
+          <span aria-hidden="true" className="inline-block h-2 w-2 bg-ink" />
+          {caseStudy.status}
+        </p>
+      </div>
+    </div>
+  </>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Un bloc OFFRE attache : en-tete (numero + titre + promesse + description),
+// libelle livrables, grille de livrables connectee, etude de cas, puis CTA.
+// ─────────────────────────────────────────────────────────────────────────────
+interface OfferBlockProps {
+  offer: ServiceCopy;
+  ctaHref: string;
+  pageLabels: { deliverablesLabel: string; sectionOf: string };
+  caseLabels: { built: string; timeline: string; status: string };
+}
+
+const OfferBlock: React.FC<OfferBlockProps> = ({ offer, ctaHref, pageLabels, caseLabels }) => (
+  <>
+    <div className="hline" data-draw="x" />
+
+    {/* En-tete de l'offre : numero (colonne) + contenu */}
+    <div className="relative grid md:grid-cols-12">
+      <span className="vrail hidden md:block" style={{ left: '33.3333%' }} data-draw="y" />
+
+      <div className="px-6 py-10 md:col-span-4 md:px-10 md:py-12">
+        <span className="inline-flex items-center justify-center bg-ink px-5 py-4 font-heading text-5xl font-semibold leading-none text-inverse md:text-6xl">
+          {offer.number}
+        </span>
+        <p className="mt-4 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+          {pageLabels.sectionOf} {offer.number}
+        </p>
+      </div>
+
+      <div className="px-6 py-10 md:col-span-8 md:px-10 md:py-12">
+        <h2 className="font-heading text-2xl font-semibold uppercase tracking-tight text-ink dark:text-text-primary-dark md:text-4xl">
+          {offer.title}
+        </h2>
+        <p className="mt-4 font-heading text-base font-medium text-ink dark:text-text-primary-dark md:text-lg">
+          {offer.promise}
+        </p>
+        <p className="mt-4 max-w-2xl leading-relaxed text-muted dark:text-text-secondary-dark">
+          {offer.description}
+        </p>
+      </div>
+    </div>
+
+    {/* Livrables */}
+    <div className="hline" data-draw="x" />
+    <div className="px-5 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+      {'// '}
+      {pageLabels.deliverablesLabel}
+    </div>
+    <div className="hline" data-draw="x" />
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {offer.deliverables.map((d, i) => (
+        <div key={d.label} className="relative flex flex-col p-6">
+          <span className="vrail vrail-l hidden sm:block" data-draw="y" />
+          <div className="hline absolute left-0 top-0" data-draw="x" />
+          <span className="font-mono text-xs tracking-[0.14em] text-muted">{pad2(i + 1)}</span>
+          <h3 className="mt-4 font-heading text-lg font-semibold uppercase tracking-tight text-ink dark:text-text-primary-dark">
+            {d.label}
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted dark:text-text-secondary-dark">
+            {d.detail}
+          </p>
+        </div>
+      ))}
+    </div>
+
+    {/* Etude de cas (offre 02) */}
+    {offer.caseStudy && <CaseStudyBlock caseStudy={offer.caseStudy} labels={caseLabels} />}
+
+    {/* CTA de l'offre */}
+    <div className="hline" data-draw="x" />
+    <div className="px-6 py-10 md:px-10 md:py-12">
+      {offer.cta.kicker && (
+        <p className="mb-4 font-heading text-xl font-semibold text-ink dark:text-text-primary-dark">
+          {offer.cta.kicker}
         </p>
       )}
-      <a className="btn-primary" href={href}>
-        {cta.button}
+      <a className="btn-primary no-underline" href={ctaHref}>
+        {offer.cta.button}
         <span aria-hidden="true">→</span>
       </a>
-      {cta.note && (
+      {offer.cta.note && (
         <p className="mt-3 max-w-md text-sm text-muted dark:text-text-secondary-dark">
-          {cta.note}
+          {offer.cta.note}
         </p>
       )}
     </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Encart ETUDE DE CAS KuryLabs (offre 02) — carte claire premium :
-// tag + client + contexte, les 5 briques « built » en cartes numerotees,
-// puis un bandeau timeline (~2 mois) + statut (fonctionnel / cloud).
-// ─────────────────────────────────────────────────────────────────────────────
-interface CaseStudyProps {
-  caseStudy: ServiceCaseStudy;
-  labels: { built: string; timeline: string; status: string; live: string };
-}
-
-function CaseStudyCard({ caseStudy, labels }: CaseStudyProps): JSX.Element {
-  return (
-    <Reveal className="mt-12">
-      <div className="relative overflow-hidden rounded-2xl border border-ui-border-light bg-surface dark:bg-bg-dark-2 dark:border-ui-border shadow-md">
-        {/* Trajectoire douce en filigrane (clair, jamais sombre). */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-gradient-trajectory opacity-70"
-        />
-
-        <div className="relative p-8 md:p-12">
-          {/* Tag + client */}
-          <span className="kicker">{caseStudy.tag}</span>
-          <h3 className="mt-4 font-heading font-bold text-2xl md:text-3xl tracking-tight text-ink dark:text-text-primary-dark">
-            {caseStudy.client}
-          </h3>
-          <p className="mt-4 max-w-3xl text-base md:text-lg leading-relaxed text-muted dark:text-text-secondary-dark">
-            {caseStudy.context}
-          </p>
-
-          {/* Les 5 briques « built » en cartes numerotees */}
-          <p className="kicker mt-10">{labels.built}</p>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {caseStudy.built.map((brick, i) => (
-              <Reveal key={brick} delay={i * 0.06}>
-                <article className="card lift relative h-full overflow-hidden p-6 bg-paper dark:bg-bg-dark">
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -top-2 right-3 font-code font-bold text-5xl leading-none text-primary/10 dark:text-primary-300/15 select-none"
-                  >
-                    {pad2(i + 1)}
-                  </span>
-                  <span className="font-code text-xs tracking-[0.18em] text-primary">
-                    {pad2(i + 1)}
-                  </span>
-                  <p className="mt-3 leading-relaxed text-ink dark:text-text-primary-dark">
-                    {brick}
-                  </p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* Bandeau timeline + statut */}
-          <Reveal delay={0.1}>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-ui-border-light dark:border-ui-border bg-paper/70 dark:bg-bg-dark/60 px-5 py-4">
-                <p className="font-code text-xs uppercase tracking-[0.18em] text-muted dark:text-text-secondary-dark">
-                  {labels.timeline}
-                </p>
-                <p className="mt-1 font-heading font-semibold text-ink dark:text-text-primary-dark">
-                  {caseStudy.timeline}
-                </p>
-              </div>
-              <div className="rounded-xl border border-ui-border-light dark:border-ui-border bg-paper/70 dark:bg-bg-dark/60 px-5 py-4">
-                <p className="font-code text-xs uppercase tracking-[0.18em] text-muted dark:text-text-secondary-dark">
-                  {labels.status}
-                </p>
-                <p className="mt-1 inline-flex items-center gap-2 font-heading font-semibold text-ink dark:text-text-primary-dark">
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-2 w-2 rounded-full bg-success"
-                  />
-                  {caseStudy.status}
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Aperçu du produit en ligne : fenêtre de navigateur + capture réelle */}
-          {caseStudy.preview && caseStudy.link && (
-            <Reveal delay={0.12}>
-              <a
-                href={caseStudy.link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={caseStudy.link.label}
-                className="group mt-10 block overflow-hidden rounded-2xl border border-ui-border-light dark:border-ui-border shadow-md no-underline"
-              >
-                {/* Barre de navigateur */}
-                <div className="flex items-center gap-3 border-b border-ui-border-light dark:border-ui-border bg-surface dark:bg-bg-dark-2 px-4 py-3">
-                  <span aria-hidden="true" className="flex shrink-0 gap-1.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-ui-border-light dark:bg-ui-border" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-ui-border-light dark:bg-ui-border" />
-                    <span className="h-2.5 w-2.5 rounded-full bg-ui-border-light dark:bg-ui-border" />
-                  </span>
-                  <span className="truncate font-code text-xs text-muted dark:text-text-secondary-dark">
-                    {caseStudy.link.href.replace(/^https?:\/\//, '')}
-                  </span>
-                  <span className="ml-auto inline-flex items-center gap-1.5 whitespace-nowrap font-code text-[0.65rem] uppercase tracking-[0.18em] text-muted dark:text-text-secondary-dark">
-                    <span aria-hidden="true" className="inline-block h-2 w-2 rounded-full bg-success" />
-                    {labels.live}
-                  </span>
-                </div>
-                {/* Capture réelle de la production (zoom doux au survol) */}
-                <div className="overflow-hidden bg-bg-dark">
-                  <img
-                    src={`${process.env.PUBLIC_URL}${caseStudy.preview}`}
-                    alt={caseStudy.link.label}
-                    loading="lazy"
-                    className="block w-full transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                  />
-                </div>
-              </a>
-            </Reveal>
-          )}
-
-          {/* Lien direct vers le produit en ligne */}
-          {caseStudy.link && (
-            <Reveal delay={0.14}>
-              <a
-                href={caseStudy.link.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary mt-8 no-underline"
-              >
-                {caseStudy.link.label}
-                <span aria-hidden="true">↗</span>
-              </a>
-            </Reveal>
-          )}
-        </div>
-      </div>
-    </Reveal>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Une OFFRE pleine largeur (alternee gauche / droite via `flip`).
-// Gros numero filigrane (parallaxe), titre XXL, promesse, description,
-// grille de livrables numerotes, etude de cas optionnelle, puis CTA.
-// ─────────────────────────────────────────────────────────────────────────────
-interface OfferSectionProps {
-  offer: ServiceCopy;
-  flip: boolean;
-  ctaHref: string;
-  pageLabels: { deliverablesLabel: string; sectionOf: string };
-  caseLabels: { built: string; timeline: string; status: string; live: string };
-}
-
-function OfferSection({
-  offer,
-  flip,
-  ctaHref,
-  pageLabels,
-  caseLabels,
-}: OfferSectionProps): JSX.Element {
-  return (
-    <section className="relative border-t border-ui-border-light dark:border-ui-border py-20 md:py-28">
-      {/* En-tete de l'offre : gros numero filigrane + titre + promesse */}
-      <div
-        className={[
-          'flex flex-col gap-8 lg:items-start',
-          flip ? 'lg:flex-row-reverse' : 'lg:flex-row',
-        ].join(' ')}
-      >
-        {/* Colonne numero filigrane (parallaxe douce) */}
-        <div className="lg:w-2/5">
-          <Parallax speed={0.12}>
-            <span
-              aria-hidden="true"
-              className="block font-code font-bold leading-none text-[7rem] md:text-[10rem] gradient-text select-none"
-            >
-              {offer.number}
-            </span>
-          </Parallax>
-          <p className="mt-2 font-code text-xs uppercase tracking-[0.18em] text-muted dark:text-text-secondary-dark">
-            {pageLabels.sectionOf} {offer.number}
-          </p>
-        </div>
-
-        {/* Colonne contenu */}
-        <div className="lg:w-3/5">
-          <Reveal>
-            <h2 className="font-heading font-bold text-3xl md:text-5xl tracking-tight text-ink dark:text-text-primary-dark">
-              {offer.title}
-            </h2>
-          </Reveal>
-          <Reveal delay={0.06}>
-            <p className="mt-5 font-heading font-semibold text-xl md:text-2xl leading-snug gradient-text">
-              {offer.promise}
-            </p>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <p className="mt-5 max-w-2xl text-base md:text-lg leading-relaxed text-muted dark:text-text-secondary-dark">
-              {offer.description}
-            </p>
-          </Reveal>
-        </div>
-      </div>
-
-      {/* Grille des livrables — cartes numerotees */}
-      <Reveal className="mt-14">
-        <p className="kicker">{pageLabels.deliverablesLabel}</p>
-      </Reveal>
-      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {offer.deliverables.map((d, i) => (
-          <Reveal key={d.label} delay={i * 0.07}>
-            <article className="card lift relative h-full overflow-hidden p-6">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -top-3 right-4 font-code font-bold text-6xl leading-none text-primary/[0.08] dark:text-primary-300/15 select-none"
-              >
-                {pad2(i + 1)}
-              </span>
-              <span className="font-code text-xs tracking-[0.18em] text-primary">
-                {pad2(i + 1)}
-              </span>
-              <h3 className="mt-3 font-heading font-semibold text-lg text-ink dark:text-text-primary-dark">
-                {d.label}
-              </h3>
-              <p className="mt-2 leading-relaxed text-muted dark:text-text-secondary-dark">
-                {d.detail}
-              </p>
-            </article>
-          </Reveal>
-        ))}
-      </div>
-
-      {/* Etude de cas (offre 02 uniquement) */}
-      {offer.caseStudy && (
-        <CaseStudyCard caseStudy={offer.caseStudy} labels={caseLabels} />
-      )}
-
-      {/* CTA de l'offre */}
-      <Reveal>
-        <OfferCta cta={offer.cta} href={ctaHref} />
-      </Reveal>
-    </section>
-  );
-}
+  </>
+);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Page
@@ -351,47 +205,88 @@ const Services: React.FC = () => {
   const caseLabels = t(CASE_STUDY_LABELS);
   const offers = SERVICES[lang];
 
-  // Titre avec accent en degrade sur la fin ("pour vous" / "for you").
-  const [titleLead] = page.title.split(page.titleAccent);
+  // ── Lignes de structure : chaque [data-draw] se TRACE au scroll (scaleX/Y 0→1).
+  const rootRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>('[data-draw]').forEach((el) => {
+        const axis = el.dataset.draw;
+        const prop = axis === 'y' ? 'scaleY' : 'scaleX';
+        gsap.fromTo(
+          el,
+          { [prop]: 0 },
+          {
+            [prop]: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 95%',
+              end: axis === 'y' ? 'top 45%' : 'top 70%',
+              scrub: 1,
+            },
+          },
+        );
+      });
+    }, root);
+
+    const refreshId = window.setTimeout(() => ScrollTrigger.refresh(), 200);
+    return () => {
+      window.clearTimeout(refreshId);
+      ctx.revert();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   return (
-    <div className="bg-paper dark:bg-bg-dark">
-      {/* ── En-tete de page : kicker + titre XXL + intro ── */}
-      <header className="pt-6 pb-4 md:pt-10">
-        <Reveal>
-          <p className="kicker">{page.kicker}</p>
-        </Reveal>
-        <Reveal delay={0.06}>
-          <h1 className="mt-5 max-w-4xl font-heading font-bold text-4xl sm:text-5xl md:text-6xl tracking-tight text-ink dark:text-text-primary-dark">
-            {titleLead}
-            <span className="gradient-text">{page.titleAccent}</span>
-          </h1>
-        </Reveal>
-        <Reveal delay={0.12}>
-          <p className="mt-6 max-w-2xl text-lg md:text-xl leading-relaxed text-muted dark:text-text-secondary-dark">
-            {page.intro}
-          </p>
-        </Reveal>
-      </header>
+    <div className="fullbleed py-8 md:py-12">
+      <div className="container-page">
+        <div ref={rootRef} className="relative">
+          <span className="vrail vrail-l" data-draw="y" />
+          <span className="vrail vrail-r" data-draw="y" />
 
-      {/* ── Les 3 offres en sections alternees pleine largeur ── */}
-      {offers.map((offer, i) => (
-        <OfferSection
-          key={offer.number}
-          offer={offer}
-          flip={i % 2 === 1}
-          ctaHref={
-            offer.number === '02'
-              ? buildProjectMailto(lang)
-              : offer.cta.href ?? '#'
-          }
-          pageLabels={{
-            deliverablesLabel: page.deliverablesLabel,
-            sectionOf: page.sectionOf,
-          }}
-          caseLabels={caseLabels}
-        />
-      ))}
+          {/* ── Bandeau de tete ── */}
+          <div className="hline" data-draw="x" />
+          <div className="flex items-center justify-between gap-4 px-5 py-3 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-muted">
+            <span>{page.kicker}</span>
+            <span className="hidden sm:inline">
+              {pad2(offers.length)} {t({ fr: 'OFFRES', en: 'OFFERS' })}
+            </span>
+          </div>
+          <div className="hline" data-draw="x" />
+
+          {/* ── Hero : titre XXL + intro ── */}
+          <div className="px-6 py-14 md:px-10 md:py-20">
+            <h1 className="max-w-4xl font-heading text-4xl font-bold uppercase leading-[1.04] tracking-tight md:text-6xl">
+              <span className="gradient-text">{page.title}</span>
+            </h1>
+            <div className="hline mt-8 max-w-sm" data-draw="x" />
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted dark:text-text-secondary-dark md:text-xl">
+              {page.intro}
+            </p>
+          </div>
+
+          {/* ── Les 3 offres, attachees dans le meme cadre ── */}
+          {offers.map((offer) => (
+            <OfferBlock
+              key={offer.number}
+              offer={offer}
+              ctaHref={offer.number === '02' ? buildProjectMailto(lang) : offer.cta.href ?? '#'}
+              pageLabels={{
+                deliverablesLabel: page.deliverablesLabel,
+                sectionOf: page.sectionOf,
+              }}
+              caseLabels={caseLabels}
+            />
+          ))}
+
+          {/* Ligne de fermeture du cadre */}
+          <div className="hline" data-draw="x" />
+        </div>
+      </div>
     </div>
   );
 };
