@@ -1,0 +1,38 @@
+# Template traité au démarrage par l'image nginx (envsubst) : seules les variables
+# d'environnement définies (ici OPENROUTER_API_KEY) sont remplacées.
+
+# IP réelle du visiteur : dernière entrée de X-Forwarded-For (ajoutée par Cloud Run).
+map $http_x_forwarded_for $client_ip {
+    "~(?<last>[^,\s]+)\s*$" $last;
+    default $remote_addr;
+}
+
+limit_req_zone $client_ip zone=ai:10m rate=10r/m;
+
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Proxy IA : la clé OpenRouter reste côté serveur (secret Cloud Run).
+    location = /api/ai/chat/completions {
+        limit_except POST { deny all; }
+        limit_req zone=ai burst=5 nodelay;
+        limit_req_status 429;
+        client_max_body_size 64k;
+
+        proxy_pass https://openrouter.ai/api/v1/chat/completions;
+        proxy_ssl_server_name on;
+        proxy_set_header Host openrouter.ai;
+        proxy_set_header Authorization "Bearer ${OPENROUTER_API_KEY}";
+        proxy_set_header Cookie "";
+        proxy_set_header X-Title "Portfolio Alexandre Lebegue";
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

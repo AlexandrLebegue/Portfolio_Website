@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 // OpenRouter API configuration
-const OPENROUTER_API_BASE_URL = 'https://openrouter.ai/api/v1';
+// Appels relayés par le proxy nginx du site : la clé n'est jamais envoyée au navigateur.
+const OPENROUTER_API_BASE_URL = '/api/ai';
 const CLAUDE_MODEL = 'deepseek/deepseek-v4-flash';
 
 // Create axios instance for OpenRouter API
 const openRouterApi = axios.create({
   baseURL: OPENROUTER_API_BASE_URL,
   headers: {
-    'Authorization': `Bearer ${process.env.REACT_APP_OPENROUTER_API_KEY}`,
     'Content-Type': 'application/json',
     'HTTP-Referer': window.location.origin,
     'X-Title': 'Portfolio Project Summarizer',

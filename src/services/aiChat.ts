@@ -5,7 +5,7 @@
 // construit au démarrage, qui liste les pages/offres/projets du site avec leurs
 // liens. Le modèle répond en insérant des marqueurs [LINK:cible|Libellé] qu'on
 // parse ensuite en liens cliquables. Aucun backend : appel direct à OpenRouter
-// via src/services/openrouter.ts (clé REACT_APP_*, modèle gratuit).
+// via src/services/openrouter.ts (proxy /api/ai du site, clé côté serveur).
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { generateCompletion, type OpenRouterMessage } from './openrouter';
@@ -32,7 +32,8 @@ export interface ChatTurn {
 
 /** Vrai si une clé OpenRouter est présente (sinon on évite l'appel et on guide). */
 export function hasApiKey(): boolean {
-  return Boolean(process.env.REACT_APP_OPENROUTER_API_KEY);
+  // Clé gérée côté serveur (proxy nginx) : l'IA est toujours disponible.
+  return true;
 }
 
 // ── Projets GitHub réels (récupérés une fois, injectés dans le prompt) ────────
@@ -42,9 +43,6 @@ async function getProjectsBlock(): Promise<string> {
   if (projectsCache !== null) return projectsCache;
   try {
     const headers: Record<string, string> = { Accept: 'application/vnd.github+json' };
-    if (process.env.REACT_APP_GITHUB_TOKEN) {
-      headers.Authorization = `token ${process.env.REACT_APP_GITHUB_TOKEN}`;
-    }
     const res = await fetch(
       'https://api.github.com/users/AlexandrLebegue/repos?sort=updated&per_page=20',
       { headers },
