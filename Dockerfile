@@ -23,5 +23,6 @@ ENV REACT_APP_OPENROUTER_API_KEY=$REACT_APP_OPENROUTER_API_KEY
 ENV REACT_APP_GITHUB_TOKEN=$REACT_APP_GITHUB_TOKEN
 
 COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
