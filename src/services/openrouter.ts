@@ -25,6 +25,9 @@ export interface OpenRouterRequest {
   messages: OpenRouterMessage[];
   max_tokens?: number;
   temperature?: number;
+  // Modèle à raisonnement : sans ça, la réflexion consomme max_tokens et la
+  // réponse arrive vide (content null, finish_reason length).
+  reasoning?: { enabled: boolean };
 }
 
 export interface OpenRouterResponse {
@@ -65,6 +68,7 @@ export const generateCompletion = async (
       messages,
       max_tokens: options.maxTokens || 500,
       temperature: options.temperature || 0.7,
+      reasoning: { enabled: false },
     };
 
     const response = await openRouterApi.post<OpenRouterResponse>('/chat/completions', request);
@@ -73,7 +77,11 @@ export const generateCompletion = async (
       throw new Error('No completion choices returned from OpenRouter API');
     }
 
-    return response.data.choices[0].message.content;
+    const content = response.data.choices[0].message?.content;
+    if (!content) {
+      throw new Error(`Empty completion (finish_reason: ${response.data.choices[0].finish_reason})`);
+    }
+    return content;
   } catch (error) {
     // Log explicite du code HTTP + corps renvoyé par OpenRouter (402 = crédits
     // insuffisants, 401 = clé invalide, 404 = politique de données, etc.).
